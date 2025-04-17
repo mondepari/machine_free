@@ -10,7 +10,7 @@ import { Flexbox } from 'react-layout-kit';
 import { ModelInfoTags } from '@/components/ModelSelect';
 import { useUserStore } from '@/store/user';
 import { modelConfigSelectors, modelProviderSelectors } from '@/store/user/selectors';
-import { GlobalLLMProviderKey } from '@/types/user/settings';
+import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
 
 interface CustomModelOptionProps {
   id: string;

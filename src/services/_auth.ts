@@ -1,9 +1,12 @@
 import { JWTPayload, LOBE_CHAT_AUTH_HEADER } from '@/const/auth';
 import { isDeprecatedEdition } from '@/const/version';
 import { ModelProvider } from '@/libs/agent-runtime';
+import { ChatStreamPayload } from '@/libs/agent-runtime/types';
 import { aiProviderSelectors, useAiInfraStore } from '@/store/aiInfra';
 import { useUserStore } from '@/store/user';
-import { keyVaultsConfigSelectors, userProfileSelectors } from '@/store/user/selectors';
+import { keyVaultsConfigSelectors, modelConfigSelectors } from '@/store/user/selectors';
+import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
+import { UserKeyVaults } from '@/types/user/settings/keyVaults';
 import {
   AWSBedrockKeyVault,
   AzureOpenAIKeyVault,
@@ -78,7 +81,7 @@ export const getProviderAuthPayload = (
 
 const createAuthTokenWithPayload = async (payload = {}) => {
   const accessCode = keyVaultsConfigSelectors.password(useUserStore.getState());
-  const userId = userProfileSelectors.userId(useUserStore.getState());
+  const userId = modelConfigSelectors.userId(useUserStore.getState());
 
   return createJWT<JWTPayload>({ accessCode, userId, ...payload });
 };

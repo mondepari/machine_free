@@ -12,6 +12,9 @@ export enum SidebarTabKey {
   Files = 'files',
   Me = 'me',
   Setting = 'settings',
+  Market = 'market',
+  Imagine = 'imagine',
+  Audio = 'audio',
 }
 
 export enum ChatSettingsTabs {
@@ -28,6 +31,7 @@ export enum SettingsTabs {
   Agent = 'agent',
   Common = 'common',
   Hotkey = 'hotkey',
+  Imagine = 'imagine',
   LLM = 'llm',
   Provider = 'provider',
   Storage = 'storage',
@@ -65,6 +69,7 @@ export interface SystemStatus {
   showHotkeyHelper?: boolean;
   showSessionPanel?: boolean;
   showSystemRole?: boolean;
+  sidebarKey: SidebarTabKey;
   /**
    * theme mode
    */
@@ -91,7 +96,6 @@ export interface GlobalState {
   isStatusInit?: boolean;
   latestVersion?: string;
   router?: AppRouterInstance;
-  sidebarKey: SidebarTabKey;
   status: SystemStatus;
   statusStorage: AsyncLocalStorage<SystemStatus>;
 }
@@ -110,6 +114,7 @@ export const INITIAL_STATUS = {
   showHotkeyHelper: false,
   showSessionPanel: true,
   showSystemRole: false,
+  sidebarKey: SidebarTabKey.Chat,
   themeMode: 'auto',
   threadInputHeight: 200,
   zenMode: false,
@@ -119,7 +124,6 @@ export const initialState: GlobalState = {
   initClientDBStage: DatabaseLoadingState.Idle,
   isMobile: false,
   isStatusInit: false,
-  sidebarKey: SidebarTabKey.Chat,
   status: INITIAL_STATUS,
   statusStorage: new AsyncLocalStorage('LOBE_SYSTEM_STATUS'),
 };

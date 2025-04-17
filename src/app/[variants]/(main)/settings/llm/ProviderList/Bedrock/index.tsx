@@ -4,7 +4,7 @@ import { Input, Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { BedrockProviderCard } from '@/config/modelProviders';
-import { GlobalLLMProviderKey } from '@/types/user/settings';
+import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
 
 import { KeyVaultsConfigKey } from '../../const';
 import { ProviderItem } from '../../type';

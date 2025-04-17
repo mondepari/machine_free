@@ -14,7 +14,7 @@ import {
   modelProviderSelectors,
   settingsSelectors,
 } from '@/store/user/selectors';
-import { GlobalLLMProviderKey } from '@/types/user/settings';
+import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
 
 const useStyles = createStyles(({ css, token }) => ({
   hover: css`

@@ -16,6 +16,16 @@ import {
 import { merge } from '@/utils/merge';
 
 import { UserStore } from '../../../store';
+import {
+  initialVideoProviderState,
+  VideoProviderSettings,
+} from '../../videoProvider/initialState';
+
+import { initialState } from '../initialState';
+
+import { UserKeyVaults } from '@/types/user/settings/keyVaults';
+import { UserSystemAgentConfig } from '@/types/user/settings/systemAgent';
+import { UserToolConfig } from '@/types/user/settings/tool';
 
 export const currentSettings = (s: UserStore): UserSettings => merge(s.defaultSettings, s.settings);
 
@@ -43,6 +53,13 @@ const currentSystemAgent = (s: UserStore) =>
 const getHotkeyById = (id: HotkeyId) => (s: UserStore) =>
   merge(DEFAULT_HOTKEY_CONFIG, currentSettings(s).hotkey)[id];
 
+const currentVideoProviderSettings = (s: UserStore): VideoProviderSettings => {
+  console.log('[Selector] Input state (s.settings):', s.settings);
+  const mergedSettings = merge(initialVideoProviderState, currentSettings(s).videoProvider);
+  console.log('[Selector] Merged videoProviderSettings:', mergedSettings);
+  return mergedSettings;
+}
+
 export const settingsSelectors = {
   currentSettings,
   currentSystemAgent,
@@ -55,4 +72,5 @@ export const settingsSelectors = {
   getHotkeyById,
   isDalleAutoGenerating,
   providerConfig: getProviderConfigById,
+  currentVideoProviderSettings,
 };

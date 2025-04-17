@@ -8,7 +8,7 @@ import { FormInput, FormPassword } from '@/components/FormInput';
 import { LoadingContext } from '@/features/Conversation/Error/APIKeyForm/LoadingContext';
 import { useProviderName } from '@/hooks/useProviderName';
 import { featureFlagsSelectors, useServerConfigStore } from '@/store/serverConfig';
-import { GlobalLLMProviderKey } from '@/types/user/settings';
+import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
 
 import { FormAction } from '../style';
 import { useApiKey } from './useApiKey';

@@ -1,0 +1,29 @@
+{
+  "tab": {
+    "agent": "Agent Settings",
+    "common": "Common Settings",
+    "experiment": "Experimental Features",
+    "hotkey": "Hotkey Settings",
+    "imagine": "Imagine Settings",
+    "llm": "LLM Settings",
+    "sync": "Cloud Sync",
+    "tts": "TTS Settings",
+    "about": "About"
+  },
+  "settingVideo": {
+    "provider": {
+      "title": "Video Provider Settings",
+      "desc": "Configure API keys and endpoints for video generation providers.",
+      "apiKey": {
+        "label": "API Key",
+        "placeholder": "Enter your API Key",
+        "desc": "Enter the API Key for the video provider."
+      },
+      "endpoint": {
+        "label": "API Endpoint URL",
+        "placeholder": "Enter the API Endpoint URL",
+        "desc": "Optional. Enter a custom endpoint URL if needed."
+      }
+    }
+  }
+} 

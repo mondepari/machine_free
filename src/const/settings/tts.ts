@@ -1,4 +1,4 @@
-import { UserTTSConfig } from '@/types/user/settings';
+import { UserTTSConfig } from '@/types/user/settings/tts';
 
 export const DEFAULT_TTS_CONFIG: UserTTSConfig = {
   openAI: {

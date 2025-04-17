@@ -1,22 +1,23 @@
 import * as ProviderCards from '@/config/modelProviders';
 import { ModelProvider } from '@/libs/agent-runtime';
 import { ModelProviderCard } from '@/types/llm';
-import { UserModelProviderConfig } from '@/types/user/settings';
+import { LobeChatSettings } from '@/types/exportConfig';
+import { UserSettings } from '@/types/user/settings';
+import { UserModelProviderConfig } from '@/types/user/settings/modelProvider';
 
-export const genUserLLMConfig = (specificConfig: Record<any, any>): UserModelProviderConfig => {
+export const genUserLLMConfig = (
+  providerConfig: Partial<UserModelProviderConfig>
+): UserModelProviderConfig => {
   return Object.keys(ModelProvider).reduce((config, providerKey) => {
     const provider = ModelProvider[providerKey as keyof typeof ModelProvider];
-    const providerCard = ProviderCards[
-      `${providerKey}ProviderCard` as keyof typeof ProviderCards
-    ] as ModelProviderCard;
-    const providerConfig = specificConfig[provider as keyof typeof specificConfig] || {};
+    const currentProviderConfig = providerConfig[provider] || {};
 
     config[provider] = {
-      enabled: providerConfig.enabled !== undefined ? providerConfig.enabled : false,
-      enabledModels: providerCard ? ProviderCards.filterEnabledModels(providerCard) : [],
-      ...(providerConfig.fetchOnClient !== undefined && {
-        fetchOnClient: providerConfig.fetchOnClient,
-      }),
+      enabled: currentProviderConfig.enabled !== undefined ? currentProviderConfig.enabled : false,
+      fetchOnClient: currentProviderConfig.fetchOnClient,
+      enabledModels: currentProviderConfig.enabledModels,
+      customModelCards: currentProviderConfig.customModelCards,
+      latestFetchTime: currentProviderConfig.latestFetchTime,
     };
 
     return config;

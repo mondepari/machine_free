@@ -1,5 +1,9 @@
+import { describe, expect, it } from 'vitest';
+
 import { HotkeyId } from '@/types/hotkey';
 import { GlobalLLMProviderKey } from '@/types/user/settings';
+
+import { UserSettings } from '@/types/user/settings';
 
 import { UserStore } from '../../../store';
 import { settingsSelectors } from './settings';

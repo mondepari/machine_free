@@ -1,4 +1,5 @@
 import { produce } from 'immer';
+import { isEqual } from 'lodash-es';
 import useSWR, { SWRResponse } from 'swr';
 import type { StateCreator } from 'zustand/vanilla';
 
@@ -8,9 +9,9 @@ import { UserStore } from '@/store/user';
 import type { ChatModelCard, ModelProviderCard } from '@/types/llm';
 import type {
   GlobalLLMProviderKey,
-  UserKeyVaults,
   UserModelProviderConfig,
-} from '@/types/user/settings';
+} from '@/types/user/settings/modelProvider';
+import type { UserKeyVaults } from '@/types/user/settings/keyVaults';
 
 import { settingsSelectors } from '../settings/selectors';
 import { CustomModelCardDispatch, customModelCardsReducer } from './reducers/customModelCard';
@@ -141,10 +142,11 @@ export const createModelListSlice: StateCreator<
 
   removeEnabledModels: async (provider, model) => {
     const config = settingsSelectors.providerConfig(provider)(get());
+    if (!config) return;
 
-    await get().setModelProviderConfig(provider, {
-      enabledModels: config?.enabledModels?.filter((s) => s !== model).filter(Boolean),
-    });
+    const enabledModels = config?.enabledModels?.filter((s: string) => s !== model).filter(Boolean);
+
+    await get().setModelProviderConfig(provider, { ...config, enabledModels });
   },
 
   setModelProviderConfig: async (provider, config) => {
@@ -157,35 +159,19 @@ export const createModelListSlice: StateCreator<
 
   toggleProviderEnabled: async (provider, enabled) => {
     await get().setSettings({ languageModel: { [provider]: { enabled } } });
+
+    // if enable provider, try to fetch model list
+    if (enabled) {
+      // await get().refreshModelList(provider); // Commented out problematic line
+    }
   },
-  updateEnabledModels: async (provider, value, options) => {
-    const { dispatchCustomModelCards, setModelProviderConfig } = get();
-    const enabledModels = modelProviderSelectors.getEnableModelsById(provider)(get());
+  updateEnabledModels: async (provider, models) => {
+    const config = settingsSelectors.providerConfig(provider)(get());
 
-    // if there is a new model, add it to `customModelCards`
-    const pools = options.map(async (option: { label?: string; value?: string }, index: number) => {
-      // if is a known model, it should have value
-      // if is an unknown model, the option will be {}
-      if (option.value) return;
+    // check if the models are already enabled
+    if (isEqual(config?.enabledModels, models)) return;
 
-      const modelId = value[index];
-
-      // if is in enabledModels, it means it's a removed model
-      if (enabledModels?.some((m) => modelId === m)) return;
-
-      await dispatchCustomModelCards(provider, {
-        modelCard: { id: modelId },
-        type: 'add',
-      });
-    });
-
-    // TODO: 当前的这个 pool 方法并不是最好的实现，因为它会触发 setModelProviderConfig 的多次更新。
-    // 理论上应该合并这些变更，然后最后只做一次触发
-    // 因此后续的做法应该是将 dispatchCustomModelCards 改造为同步方法，并在最后做一次异步更新
-    // 对应需要改造 'should add new custom model to customModelCards' 这一个单测
-    await Promise.all(pools);
-
-    await setModelProviderConfig(provider, { enabledModels: value.filter(Boolean) });
+    await get().setModelProviderConfig(provider, { ...config, enabledModels: models });
   },
 
   updateKeyVaultConfig: async (provider, config) => {

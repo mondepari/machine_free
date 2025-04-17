@@ -5,6 +5,7 @@ import {
   Brain,
   Cloudy,
   Database,
+  Image,
   Info,
   KeyboardIcon,
   Mic2,
@@ -45,6 +46,15 @@ export const useCategory = () => {
           label: (
             <Link href={'/settings/agent'} onClick={(e) => e.preventDefault()}>
               {t('tab.agent')}
+            </Link>
+          ),
+        },
+        {
+          icon: <Icon icon={Image} />,
+          key: SettingsTabs.Imagine,
+          label: (
+            <Link href={'/settings/imagine'} onClick={(e) => e.preventDefault()}>
+              {t('tab.imagine')}
             </Link>
           ),
         },

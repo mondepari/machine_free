@@ -317,11 +317,13 @@ export default {
     unconnected: { tip: '信令服务器连接失败，将无法建立点对点通信频道，请检查网络后重试' },
   },
   tab: {
-    chat: '会话',
-    discover: '发现',
-    files: '文件',
-    me: '我',
-    setting: '设置',
+    chat: 'Chat',
+    discover: 'Discover',
+    files: 'Files',
+    imagine: 'Imagine',
+    market: 'Market',
+    me: 'Me',
+    setting: 'Settings',
   },
   telemetry: {
     allow: '允许',

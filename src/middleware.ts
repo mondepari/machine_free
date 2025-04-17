@@ -33,6 +33,10 @@ export const config = {
     '/profile(.*)',
     '/me',
     '/me(.*)',
+    '/imagine',
+    '/imagine(.*)',
+    '/audio',
+    '/audio(.*)',
 
     '/login(.*)',
     '/signup(.*)',
@@ -43,11 +47,25 @@ export const config = {
 
 const defaultMiddleware = (request: NextRequest) => {
   const url = new URL(request.url);
+  const { pathname } = url;
 
-  // skip all api requests
-  if (['/api', '/trpc', '/webapi'].some((path) => url.pathname.startsWith(path))) {
-    return NextResponse.next();
+  // Define paths for API routes and static file extensions to skip middleware processing
+  const apiPaths = ['/api', '/trpc', '/webapi'];
+  // Regex to match common file extensions for static assets
+  const fileExtensionRegex = /\.(ico|png|jpg|jpeg|svg|webp|mp3|mp4|woff2|js|css|json)$/i;
+
+  // Skip processing for API routes or static files
+  if (
+    apiPaths.some((path) => pathname.startsWith(path)) ||
+    fileExtensionRegex.test(pathname)
+  ) {
+    // Do not rewrite URL for API routes or static files
+    // console.log(`[middleware] Skipping rewrite for: ${pathname}`); // Optional logging
+    return NextResponse.next(); 
   }
+
+  // If it's not an API route or static file, proceed with locale/theme rewrite...
+  // console.log(`[middleware] Rewriting URL for: ${pathname}`); // Optional logging
 
   // 1. 从 cookie 中读取用户偏好
   const theme =

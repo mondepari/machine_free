@@ -2,11 +2,14 @@ import { DeepPartial } from 'utility-types';
 
 import { IFeatureFlags } from '@/config/featureFlags';
 import { ChatModelCard } from '@/types/llm';
-import {
-  GlobalLLMProviderKey,
-  UserDefaultAgent,
-  UserSystemAgentConfig,
-} from '@/types/user/settings';
+import type { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
+import type { UserSystemAgentConfig } from '@/types/user/settings/systemAgent';
+import type { UserDefaultAgent } from '@/types/user/settings';
+import type {
+  FeatureFlagConfig,
+  GlobalServerConfig,
+  SystemStatus,
+} from '@/types/serverConfig';
 
 export interface ServerModelProviderConfig {
   enabled?: boolean;

@@ -8,11 +8,11 @@ import { userService } from '@/services/user';
 import type { UserStore } from '@/store/user';
 import { LobeAgentSettings } from '@/types/session';
 import {
-  SystemAgentItem,
+  UserSettings,
   UserGeneralConfig,
   UserKeyVaults,
-  UserSettings,
-  UserSystemAgentConfigKey,
+  UserModelProviderConfig,
+  UserSystemAgentConfig,
 } from '@/types/user/settings';
 import { difference } from '@/utils/difference';
 import { merge } from '@/utils/merge';
@@ -94,7 +94,7 @@ export const createSettingsSlice: StateCreator<
     await get().setSettings({ defaultAgent });
   },
   updateGeneralConfig: async (general) => {
-    await get().setSettings({ general });
+    await get().setSettings({ general } as DeepPartial<UserSettings>);
   },
   updateKeyVaults: async (keyVaults) => {
     await get().setSettings({ keyVaults });

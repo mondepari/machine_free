@@ -35,3 +35,4 @@ config.overrides = [
 ];
 
 module.exports = config;
+export const extends = ['plugin:storybook/recommended'];

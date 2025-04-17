@@ -1,14 +1,26 @@
 import { usePathname } from 'next/navigation';
+import { useMemo } from 'react';
 
 import { ProfileTabs, SettingsTabs, SidebarTabKey } from '@/store/global/initialState';
 
 /**
- * Returns the active tab key (chat/market/settings/...)
+ * Returns the active tab key based on the pathname.
  */
 export const useActiveTabKey = () => {
   const pathname = usePathname();
 
-  return pathname.split('/').find(Boolean)! as SidebarTabKey;
+  const key = useMemo(() => {
+    if (pathname.startsWith('/chat')) return SidebarTabKey.Chat;
+    if (pathname.startsWith('/discover')) return SidebarTabKey.Discover;
+    if (pathname.startsWith('/me')) return SidebarTabKey.Me;
+    if (pathname.startsWith('/files')) return SidebarTabKey.Files;
+    if (pathname.startsWith('/imagine')) return SidebarTabKey.Imagine;
+    if (pathname.startsWith('/audio')) return SidebarTabKey.Audio;
+
+    return SidebarTabKey.Chat;
+  }, [pathname]);
+
+  return key;
 };
 
 /**

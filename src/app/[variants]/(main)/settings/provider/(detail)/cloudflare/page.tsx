@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { FormInput, FormPassword } from '@/components/FormInput';
 import { CloudflareProviderCard } from '@/config/modelProviders';
 import { aiProviderSelectors, useAiInfraStore } from '@/store/aiInfra';
-import { GlobalLLMProviderKey } from '@/types/user/settings';
+import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
 
 import { KeyVaultsConfigKey } from '../../const';
 import { SkeletonInput } from '../../features/ProviderConfig';

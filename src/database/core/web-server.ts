@@ -10,34 +10,106 @@ import * as schema from '@/database/schemas';
 
 import { LobeChatDatabase } from '../type';
 
-export const getDBInstance = (): LobeChatDatabase => {
-  if (!isServerMode) return {} as any;
+const DB_NAME = 'lobe-chat';
+const DB_VERSION = 1;
 
-  if (!serverDBEnv.KEY_VAULTS_SECRET) {
-    throw new Error(
-      ` \`KEY_VAULTS_SECRET\` is not set, please set it in your environment variables.
+class WebDBServer {
+  private db: IDBDatabase | null = null;
+  private static instance: WebDBServer;
 
-If you don't have it, please run \`openssl rand -base64 32\` to create one.
-`,
-    );
+  private constructor() {}
+
+  static getInstance(): WebDBServer {
+    if (!WebDBServer.instance) {
+      WebDBServer.instance = new WebDBServer();
+    }
+    return WebDBServer.instance;
   }
 
-  let connectionString = serverDBEnv.DATABASE_URL;
+  async connect(): Promise<void> {
+    if (this.db) return;
 
-  if (!connectionString) {
-    throw new Error(`You are try to use database, but "DATABASE_URL" is not set correctly`);
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+      request.onerror = () => {
+        reject(new Error('Failed to open database'));
+      };
+
+      request.onsuccess = () => {
+        this.db = request.result;
+        resolve();
+      };
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        
+        // Create object stores if they don't exist
+        if (!db.objectStoreNames.contains('settings')) {
+          db.createObjectStore('settings');
+        }
+        if (!db.objectStoreNames.contains('imageProvider')) {
+          db.createObjectStore('imageProvider');
+        }
+      };
+    });
   }
 
-  if (serverDBEnv.DATABASE_DRIVER === 'node') {
-    const client = new NodePool({ connectionString });
-    return nodeDrizzle(client, { schema });
+  async get<T>(storeName: string, key: string): Promise<T | null> {
+    await this.connect();
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(storeName, 'readonly');
+      const store = transaction.objectStore(storeName);
+      const request = store.get(key);
+
+      request.onerror = () => reject(new Error('Failed to read data'));
+      request.onsuccess = () => resolve(request.result || null);
+    });
   }
 
-  if (process.env.MIGRATION_DB === '1') {
-    // https://github.com/neondatabase/serverless/blob/main/CONFIG.md#websocketconstructor-typeof-websocket--undefined
-    neonConfig.webSocketConstructor = ws;
+  async set(storeName: string, key: string, value: any): Promise<void> {
+    await this.connect();
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(storeName, 'readwrite');
+      const store = transaction.objectStore(storeName);
+      const request = store.put(value, key);
+
+      request.onerror = () => reject(new Error('Failed to write data'));
+      request.onsuccess = () => resolve();
+    });
   }
 
-  const client = new NeonPool({ connectionString });
-  return neonDrizzle(client, { schema });
-};
+  async delete(storeName: string, key: string): Promise<void> {
+    await this.connect();
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(storeName, 'readwrite');
+      const store = transaction.objectStore(storeName);
+      const request = store.delete(key);
+
+      request.onerror = () => reject(new Error('Failed to delete data'));
+      request.onsuccess = () => resolve();
+    });
+  }
+
+  async clear(storeName: string): Promise<void> {
+    await this.connect();
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(storeName, 'readwrite');
+      const store = transaction.objectStore(storeName);
+      const request = store.clear();
+
+      request.onerror = () => reject(new Error('Failed to clear data'));
+      request.onsuccess = () => resolve();
+    });
+  }
+}
+
+export const getDBInstance = () => WebDBServer.getInstance();

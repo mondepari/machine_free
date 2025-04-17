@@ -461,7 +461,7 @@
   "tab": {
     "about": "About",
     "agent": "Default Assistant",
-    "common": "Common Settings",
+    "common": "General Settings",
     "experiment": "Experiment",
     "hotkey": "Hotkeys",
     "llm": "Language Model",
@@ -469,7 +469,7 @@
     "storage": "Data Storage",
     "sync": "Cloud Sync",
     "system-agent": "System Assistant",
-    "tts": "Text-to-Speech"
+    "tts": "Voice Services"
   },
   "tools": {
     "builtins": {

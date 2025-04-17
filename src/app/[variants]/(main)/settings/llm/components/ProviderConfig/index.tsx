@@ -26,7 +26,7 @@ import { isServerMode } from '@/const/version';
 import { useUserStore } from '@/store/user';
 import { keyVaultsConfigSelectors, modelConfigSelectors } from '@/store/user/selectors';
 import { ModelProviderCard } from '@/types/llm';
-import { GlobalLLMProviderKey } from '@/types/user/settings';
+import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
 
 import Checker from '../Checker';
 import ProviderModelListSelect from '../ProviderModelList';

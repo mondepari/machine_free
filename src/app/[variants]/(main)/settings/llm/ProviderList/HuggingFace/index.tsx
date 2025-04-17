@@ -6,7 +6,7 @@ import { createStyles } from 'antd-style';
 import { useTranslation } from 'react-i18next';
 
 import { HuggingFaceProviderCard } from '@/config/modelProviders';
-import { GlobalLLMProviderKey } from '@/types/user/settings';
+import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
 
 import { KeyVaultsConfigKey, LLMProviderApiTokenKey } from '../../const';
 import { ProviderItem } from '../../type';

@@ -4,10 +4,14 @@ import { filterEnabledModels } from '@/config/modelProviders';
 import { EnabledProviderWithModels } from '@/types/aiProvider';
 import { ChatModelCard, ModelProviderCard } from '@/types/llm';
 import { ServerModelProviderConfig } from '@/types/serverConfig';
-import { GlobalLLMProviderKey } from '@/types/user/settings';
+import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
+import { UserKeyVaults } from '@/types/user/settings/keyVaults';
+import { UserModelProviderConfig } from '@/types/user/settings/modelProvider';
+import { LobeAgentSettings } from '@/types/session';
 
 import { UserStore } from '../../../store';
 import { currentSettings, getProviderConfigById } from '../../settings/selectors/settings';
+import { modelConfigSelectors } from './modelConfig';
 
 /**
  * get the server side model cards

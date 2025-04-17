@@ -11,6 +11,7 @@ import { S3 } from '@/server/modules/S3';
 import { getFullFileUrl } from '@/server/utils/files';
 import { AsyncTaskStatus, AsyncTaskType } from '@/types/asyncTask';
 import { FileListItem, QueryFileListSchema, UploadFileSchema } from '@/types/files';
+import { merge } from '@/utils/merge';
 
 const fileProcedure = authedProcedure.use(async (opts) => {
   const { ctx } = opts;
@@ -187,6 +188,27 @@ export const fileRouter = router({
       const s3Client = new S3();
 
       await s3Client.deleteFiles(needToRemoveFileList.map((file) => file.url!));
+    }),
+
+  updateFileMetadata: fileProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        metadata: z.record(z.string(), z.any()),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const file = await ctx.fileModel.findById(input.id);
+
+      if (!file) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'File not found' });
+      }
+
+      const newMetadata = merge(file.metadata || {}, input.metadata);
+
+      await ctx.fileModel.update(input.id, { metadata: newMetadata });
+
+      return { success: true };
     }),
 });
 

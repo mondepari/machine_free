@@ -1,6 +1,8 @@
 import { isProviderDisableBrowserRequest } from '@/config/modelProviders';
 import { UserStore } from '@/store/user';
 import { GlobalLLMProviderKey } from '@/types/user/settings';
+import { UserSettings } from '@/types/user/settings';
+import { UserModelProviderConfig } from '@/types/user/settings/modelProvider';
 
 import { currentLLMSettings, getProviderConfigById } from '../../settings/selectors/settings';
 import { keyVaultsConfigSelectors } from './keyVaults';
