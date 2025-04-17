@@ -3,12 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { merge } from '@/utils/merge';
 
 import { UserState, initialState } from '../../../initialState';
-import { UserStore } from '../../store';
-import { UserSettings } from '@/types/user/settings';
-import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
-import { UserModelProviderConfig } from '@/types/user/settings/modelProvider';
+import { UserStore, useUserStore } from '../../../store';
 import { getDefaultModeProviderById, modelProviderSelectors } from './modelProvider';
-import { modelConfigSelectors } from './modelConfig';
 
 describe('modelProviderSelectors', () => {
   describe('getDefaultModeProviderById', () => {

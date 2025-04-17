@@ -8,11 +8,11 @@ import { userService } from '@/services/user';
 import type { UserStore } from '@/store/user';
 import { LobeAgentSettings } from '@/types/session';
 import {
-  UserSettings,
+  SystemAgentItem,
   UserGeneralConfig,
   UserKeyVaults,
-  UserModelProviderConfig,
-  UserSystemAgentConfig,
+  UserSettings,
+  UserSystemAgentConfigKey,
 } from '@/types/user/settings';
 import { difference } from '@/utils/difference';
 import { merge } from '@/utils/merge';

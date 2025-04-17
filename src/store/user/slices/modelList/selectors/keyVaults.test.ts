@@ -7,11 +7,9 @@ import {
   OpenAICompatibleKeyVault,
 } from '@/types/user/settings';
 import { merge } from '@/utils/merge';
-import { UserKeyVaults } from '@/types/user/settings/keyVaults';
 
 import { initialSettingsState } from '../../settings/initialState';
 import { keyVaultsConfigSelectors } from './keyVaults';
-import { keyVaultsSettings } from './keyVaults';
 
 describe('keyVaultsConfigSelectors', () => {
   describe('isProviderEndpointNotEmpty', () => {

@@ -11,7 +11,7 @@ import { Flexbox } from 'react-layout-kit';
 import { ModelInfoTags } from '@/components/ModelSelect';
 import { useUserStore } from '@/store/user';
 import { modelProviderSelectors } from '@/store/user/selectors';
-import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
+import { GlobalLLMProviderKey } from '@/types/user/settings';
 
 import CustomModelOption from './CustomModelOption';
 

@@ -1,14 +1,13 @@
-import { UserSettings } from '@/types/user/settings';
-import { UserKeyVaults } from '@/types/user/settings/keyVaults';
-
-import { UserStore } from '../../store';
-import { currentSettings } from '../../settings/selectors/settings';
+import { UserStore } from '@/store/user';
 import {
   AWSBedrockKeyVault,
   AzureOpenAIKeyVault,
   GlobalLLMProviderKey,
   OpenAICompatibleKeyVault,
+  UserKeyVaults,
 } from '@/types/user/settings';
+
+import { currentSettings } from '../../settings/selectors/settings';
 
 export const keyVaultsSettings = (s: UserStore): UserKeyVaults =>
   currentSettings(s).keyVaults || {};

@@ -4,17 +4,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { ModelProvider } from '@/libs/agent-runtime';
 import { useUserStore } from '@/store/user';
 import {
-  AWSBedrockKeyVault,
-  AzureOpenAIKeyVault,
-  CloudflareKeyVault,
-  OpenAICompatibleKeyVault,
-  UserKeyVaults,
-} from '@/types/user/settings/keyVaults';
-import {
   GlobalLLMProviderKey,
+  UserKeyVaults,
   UserModelProviderConfig,
-} from '@/types/user/settings/modelProvider';
-import { UserSettings } from '@/types/user/settings';
+} from '@/types/user/settings';
 
 import { getProviderAuthPayload } from '../_auth';
 

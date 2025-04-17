@@ -8,12 +8,7 @@ import { userService } from '@/services/user';
 import { useUserStore } from '@/store/user';
 import { LobeAgentSettings } from '@/types/session';
 import { UserSettings } from '@/types/user/settings';
-import { UserKeyVaults } from '@/types/user/settings/keyVaults';
-import { UserModelProviderConfig } from '@/types/user/settings/modelProvider';
 import { merge } from '@/utils/merge';
-
-import { UserPreference } from './preference/initialState';
-import { UserSettingsState } from './settings/initialState';
 
 vi.mock('zustand/traditional');
 

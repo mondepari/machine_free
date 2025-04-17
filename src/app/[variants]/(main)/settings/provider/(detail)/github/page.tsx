@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { FormPassword } from '@/components/FormInput';
 import { GithubProviderCard } from '@/config/modelProviders';
 import { aiProviderSelectors, useAiInfraStore } from '@/store/aiInfra';
-import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
+import { GlobalLLMProviderKey } from '@/types/user/settings';
 
 import { KeyVaultsConfigKey, LLMProviderApiTokenKey } from '../../const';
 import { SkeletonInput } from '../../features/ProviderConfig';

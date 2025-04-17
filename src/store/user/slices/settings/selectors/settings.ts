@@ -21,12 +21,6 @@ import {
   VideoProviderSettings,
 } from '../../videoProvider/initialState';
 
-import { initialState } from '../initialState';
-
-import { UserKeyVaults } from '@/types/user/settings/keyVaults';
-import { UserSystemAgentConfig } from '@/types/user/settings/systemAgent';
-import { UserToolConfig } from '@/types/user/settings/tool';
-
 export const currentSettings = (s: UserStore): UserSettings => merge(s.defaultSettings, s.settings);
 
 export const currentLLMSettings = (s: UserStore): UserModelProviderConfig =>

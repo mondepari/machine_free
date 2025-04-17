@@ -6,7 +6,7 @@ import { Center, Flexbox } from 'react-layout-kit';
 
 import { ModelProvider } from '@/libs/agent-runtime';
 import { useChatStore } from '@/store/chat';
-import { GlobalLLMProviderKey } from '@/types/user/settings/modelProvider';
+import { GlobalLLMProviderKey } from '@/types/user/settings';
 
 import BedrockForm from './Bedrock';
 import { LoadingContext } from './LoadingContext';

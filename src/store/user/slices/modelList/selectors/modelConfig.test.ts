@@ -6,10 +6,6 @@ import { merge } from '@/utils/merge';
 import { UserState } from '../../../initialState';
 import { UserSettingsState, initialSettingsState } from '../../settings/initialState';
 import { modelConfigSelectors } from './modelConfig';
-import { UserSettings } from '@/types/user/settings';
-import { UserModelProviderConfig } from '@/types/user/settings/modelProvider';
-import { UserKeyVaults } from '@/types/user/settings/keyVaults';
-import { keyVaultsConfigSelectors } from './keyVaults';
 
 describe('modelConfigSelectors', () => {
   describe('isProviderEnabled', () => {
