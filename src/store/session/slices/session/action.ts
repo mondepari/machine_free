@@ -1,6 +1,6 @@
 import isEqual from 'fast-deep-equal';
 import { t } from 'i18next';
-import useSWR, { SWRResponse, mutate } from 'swr';
+import { useSWR, mutate } from 'swr';
 import { DeepPartial } from 'utility-types';
 import { StateCreator } from 'zustand/vanilla';
 

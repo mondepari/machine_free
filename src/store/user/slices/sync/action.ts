@@ -1,4 +1,4 @@
-import useSWR, { SWRResponse } from 'swr';
+import { useSWR } from '@/libs/swr';
 import type { StateCreator } from 'zustand/vanilla';
 
 import type { UserStore } from '@/store/user';

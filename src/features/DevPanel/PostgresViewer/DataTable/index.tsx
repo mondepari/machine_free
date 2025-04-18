@@ -3,7 +3,7 @@ import { createStyles } from 'antd-style';
 import { Download, Filter, RefreshCw } from 'lucide-react';
 import React from 'react';
 import { Center, Flexbox } from 'react-layout-kit';
-import { mutate } from 'swr';
+import { mutate } from '@/libs/swr';
 
 import { exportService } from '@/services/export';
 

@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import useSWR, { SWRResponse } from 'swr';
+import { SWRResponse, useSWR } from '@/libs/swr';
 import type { StateCreator } from 'zustand/vanilla';
 
 import { DEFAULT_MODEL_PROVIDER_LIST } from '@/config/modelProviders';
@@ -8,9 +8,9 @@ import { UserStore } from '@/store/user';
 import type { ChatModelCard, ModelProviderCard } from '@/types/llm';
 import type {
   GlobalLLMProviderKey,
-  UserKeyVaults,
   UserModelProviderConfig,
-} from '@/types/user/settings';
+} from '@/types/user/settings/modelProvider';
+import type { UserKeyVaults } from '@/types/user/settings/keyVaults';
 
 import { settingsSelectors } from '../settings/selectors';
 import { CustomModelCardDispatch, customModelCardsReducer } from './reducers/customModelCard';
@@ -50,7 +50,7 @@ export interface ModelListAction {
     config: Partial<UserKeyVaults[T]>,
   ) => Promise<void>;
 
-  updateKeyVaultSettings: (key: string, config: any) => Promise<void>;
+  updateKeyVaultSettings: (provider: GlobalLLMProviderKey, config: any) => Promise<void>;
 
   useFetchProviderModelList: (
     provider: GlobalLLMProviderKey,
@@ -109,7 +109,7 @@ export const createModelListSlice: StateCreator<
     const defaultModelProviderList = produce(DEFAULT_MODEL_PROVIDER_LIST, (draft) => {
       Object.values(ModelProvider).forEach((id) => {
         const provider = draft.find((d) => d.id === id);
-        if (provider) provider.chatModels = mergeModels(id as any, provider);
+        if (provider) provider.chatModels = mergeModels(id, provider);
       });
     });
 
@@ -129,10 +129,10 @@ export const createModelListSlice: StateCreator<
 
             return {
               ...model,
-              enabled: enabledModels?.some((m) => m === model.id),
+              enabled: enabledModels?.some((m: string) => m === model.id),
             };
           }),
-        enabled: modelProviderSelectors.isProviderEnabled(list.id as any)(get()),
+        enabled: modelProviderSelectors.isProviderEnabled(list.id)(get()),
       };
     });
 
@@ -143,7 +143,7 @@ export const createModelListSlice: StateCreator<
     const config = settingsSelectors.providerConfig(provider)(get());
 
     await get().setModelProviderConfig(provider, {
-      enabledModels: config?.enabledModels?.filter((s) => s !== model).filter(Boolean),
+      enabledModels: config?.enabledModels?.filter((s: string) => s !== model).filter(Boolean),
     });
   },
 
@@ -171,7 +171,7 @@ export const createModelListSlice: StateCreator<
       const modelId = value[index];
 
       // if is in enabledModels, it means it's a removed model
-      if (enabledModels?.some((m) => modelId === m)) return;
+      if (enabledModels?.some((m: string) => modelId === m)) return;
 
       await dispatchCustomModelCards(provider, {
         modelCard: { id: modelId },
@@ -192,7 +192,7 @@ export const createModelListSlice: StateCreator<
     await get().setSettings({ keyVaults: { [provider]: config } });
   },
 
-  updateKeyVaultSettings: async (provider, config) => {
+  updateKeyVaultSettings: async (provider: GlobalLLMProviderKey, config: any /* TODO: Determine correct type */) => {
     await get().setSettings({ keyVaults: { [provider]: config } });
   },
 

@@ -1,6 +1,6 @@
 import { LobeChatPluginManifest, LobeChatPluginMeta } from '@lobehub/chat-plugin-sdk';
 import { act, renderHook } from '@testing-library/react';
-import useSWR from 'swr';
+import { useSWR } from 'swr';
 import { Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { notification } from '@/components/AntdStaticMethods';
