@@ -1,8 +1,7 @@
-import useSWR from 'swr';
-import { SWRConfig, SWRHook } from 'swr';
+import useSWR, { mutate, SWRConfig, SWRHook } from 'swr';
 
 export type { SWRConfiguration, SWRResponse } from 'swr';
-export { SWRConfig, useSWR };
+export { useSWR, mutate, SWRConfig };
 
 /**
  * This type of request method is relatively flexible data, which will be triggered on the first time

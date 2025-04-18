@@ -1,3 +1,4 @@
+import React from 'react';
 import { metadataModule } from '@/server/metadata';
 import { translation } from '@/server/translation';
 import { DynamicLayoutProps } from '@/types/next';

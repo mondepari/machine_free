@@ -1,7 +1,7 @@
 import { LobeChatPluginMeta } from '@lobehub/chat-plugin-sdk';
 import { t } from 'i18next';
 import { produce } from 'immer';
-import { useSWR, mutate } from 'swr';
+import useSWR, { mutate, SWRResponse } from 'swr';
 import { StateCreator } from 'zustand/vanilla';
 import { StoreApi } from 'zustand/esm';
 import { UseBoundStore } from 'zustand';

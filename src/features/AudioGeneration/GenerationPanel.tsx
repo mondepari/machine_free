@@ -87,7 +87,7 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
   const [selectedModel, setSelectedModel] = useState<string>('sonic');
   const [title, setTitle] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollingAttemptsRef = useRef<number>(0);
 
   const handleDeleteSound = (id: string) => {
