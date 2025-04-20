@@ -1,7 +1,6 @@
 import { DefaultResources } from '@/types/locale';
 import 'i18next';
 
-import type { Locales } from '@/locales/resources';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -14,18 +13,18 @@ declare module 'i18next' {
     setting: {
       settingVideo: {
         provider: {
-          title: string;
-          desc: string;
           apiKey: {
+            desc: string;
             label: string;
             placeholder: string;
-            desc: string;
           };
+          desc: string;
           endpoint: {
+            desc: string;
             label: string;
             placeholder: string;
-            desc: string;
           };
+          title: string;
         };
       };
     };

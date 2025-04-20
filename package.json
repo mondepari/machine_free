@@ -1,7 +1,7 @@
 {
-  "name": "@lobehub/chat",
+  "name": "@aimagine/v1",
   "version": "1.77.4",
-  "description": "Lobe Chat - an open-source, high-performance chatbot framework that supports speech synthesis, multimodal, and extensible Function Call plugin system. Supports one-click free deployment of your private ChatGPT/LLM web application.",
+  "description": "AImagine - chat framework that supports speech synthesis, multimodal, and extensible Function Call plugin system. Supports one-click free deployment of your private ChatGPT/LLM web application.",
   "keywords": [
     "framework",
     "chatbot",
@@ -14,16 +14,16 @@
     "tts",
     "stt"
   ],
-  "homepage": "https://github.com/lobehub/lobe-chat",
+  "homepage": "https://github.com/mondepari/aimagine",
   "bugs": {
-    "url": "https://github.com/lobehub/lobe-chat/issues/new/choose"
+    "url": "https://github.com/mondepari/aimagine/issues/new/choose"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lobehub/lobe-chat.git"
+    "url": "https://github.com/mondepari/aimagine"
   },
   "license": "MIT",
-  "author": "LobeHub <i@lobehub.com>",
+  "author": "mondepari <offers@aimagine.space>",
   "sideEffects": false,
   "workspaces": [
     "packages/*"

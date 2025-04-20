@@ -3,8 +3,6 @@ import { t } from 'i18next';
 import { produce } from 'immer';
 import useSWR, { mutate, SWRResponse } from 'swr';
 import { StateCreator } from 'zustand/vanilla';
-import { StoreApi } from 'zustand/esm';
-import { UseBoundStore } from 'zustand';
 
 import { notification } from '@/components/AntdStaticMethods';
 import { pluginService } from '@/services/plugin';

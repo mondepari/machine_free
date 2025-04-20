@@ -1,10 +1,10 @@
 const imagine = {
-  noProvider: 'Провайдер не настроен',
   enableProvider: 'Пожалуйста, включите и настройте провайдера в настройках генерации изображений',
-  generating: 'Генерация изображений...',
   error: 'Ошибка генерации',
   generatedImage: 'Сгенерированное изображение',
+  generating: 'Генерация изображений...',
   imagesWillBeDisplayedHere: 'Здесь будут отображаться сгенерированные изображения',
+  noProvider: 'Провайдер не настроен',
 } as const;
 
 export default imagine; 

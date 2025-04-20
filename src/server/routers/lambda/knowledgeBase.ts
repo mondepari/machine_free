@@ -1,17 +1,15 @@
 import { z } from 'zod';
 
 import { KnowledgeBaseModel } from '@/database/models/knowledgeBase';
-import { insertKnowledgeBasesSchema } from '@/database/schemas';
-import { serverDB } from '@/database/server';
+import { getServerDBInstance } from '@/database/server/connection';
 import { authedProcedure, router } from '@/libs/trpc';
 import { KnowledgeBaseItem } from '@/types/knowledgeBase';
 
 const knowledgeBaseProcedure = authedProcedure.use(async (opts) => {
-  const { ctx } = opts;
-
+  const db = await getServerDBInstance();
   return opts.next({
     ctx: {
-      knowledgeBaseModel: new KnowledgeBaseModel(serverDB, ctx.userId),
+      knowledgeBaseModel: new KnowledgeBaseModel(db, opts.ctx.userId),
     },
   });
 });
@@ -24,32 +22,33 @@ export const knowledgeBaseRouter = router({
     }),
 
   createKnowledgeBase: knowledgeBaseProcedure
-    .input(
-      z.object({
-        avatar: z.string().optional(),
-        description: z.string().optional(),
-        name: z.string(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const data = await ctx.knowledgeBaseModel.create({
-        avatar: input.avatar,
-        description: input.description,
-        name: input.name,
-      });
-
-      return data?.id;
+    .input(z.object({
+      avatar: z.string().nullish(),
+      description: z.string().nullish(),
+      name: z.string().optional(),
+      isPublic: z.boolean().nullish(),
+      settings: z.any().optional(),
+      type: z.string().nullish(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.knowledgeBaseModel.create(input);
     }),
+
+  deleteKnowledgeBase: knowledgeBaseProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.knowledgeBaseModel.delete(input.id);
+    }),
+
+  getAllKnowledgeBases: knowledgeBaseProcedure.query(async ({ ctx }) => {
+    return ctx.knowledgeBaseModel.query();
+  }),
 
   getKnowledgeBaseById: knowledgeBaseProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }): Promise<KnowledgeBaseItem | undefined> => {
       return ctx.knowledgeBaseModel.findById(input.id);
     }),
-
-  getKnowledgeBases: knowledgeBaseProcedure.query(async ({ ctx }): Promise<KnowledgeBaseItem[]> => {
-    return ctx.knowledgeBaseModel.query();
-  }),
 
   removeAllKnowledgeBases: knowledgeBaseProcedure.mutation(async ({ ctx }) => {
     return ctx.knowledgeBaseModel.deleteAll();
@@ -61,20 +60,25 @@ export const knowledgeBaseRouter = router({
       return ctx.knowledgeBaseModel.removeFilesFromKnowledgeBase(input.knowledgeBaseId, input.ids);
     }),
 
-  removeKnowledgeBase: knowledgeBaseProcedure
-    .input(z.object({ id: z.string(), removeFiles: z.boolean().optional() }))
-    .mutation(async ({ input, ctx }) => {
-      return ctx.knowledgeBaseModel.delete(input.id);
-    }),
-
   updateKnowledgeBase: knowledgeBaseProcedure
     .input(
       z.object({
         id: z.string(),
-        value: insertKnowledgeBasesSchema.partial(),
+        value: z
+          .object({
+            avatar: z.string().nullish(),
+            description: z.string().nullish(),
+            name: z.string().optional(),
+            isPublic: z.boolean().nullish(),
+            settings: z.any().optional(),
+            type: z.string().nullish(),
+          })
+          .partial(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ ctx, input }) => {
       return ctx.knowledgeBaseModel.update(input.id, input.value);
     }),
 });
+
+export type KnowledgeBaseRouter = typeof knowledgeBaseRouter;

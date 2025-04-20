@@ -58,6 +58,7 @@ export const settingsSelectors = {
   currentSettings,
   currentSystemAgent,
   currentTTS,
+  currentVideoProviderSettings,
   dalleConfig,
   defaultAgent,
   defaultAgentConfig,
@@ -66,5 +67,4 @@ export const settingsSelectors = {
   getHotkeyById,
   isDalleAutoGenerating,
   providerConfig: getProviderConfigById,
-  currentVideoProviderSettings,
 };

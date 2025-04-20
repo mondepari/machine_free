@@ -27,9 +27,15 @@ const useStyles = createStyles(({ css, token }, { imageCount }: { imageCount?: n
     width: 100%;
     overflow: auto;
   `,
-  placeholder: css`
-    color: ${token.colorTextPlaceholder};
-    font-size: 14px;
+  imageCard: css`
+    position: relative;
+    border-radius: ${token.borderRadius}px;
+    overflow: hidden;
+    background: ${token.colorBgContainer};
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    aspect-ratio: 1;
+    height: ${imageCount === 1 ? '600px' : '380px'};
+    width: ${imageCount === 1 ? '600px' : '100%'};
   `,
   imageGrid: css`
     display: grid;
@@ -40,16 +46,6 @@ const useStyles = createStyles(({ css, token }, { imageCount }: { imageCount?: n
     max-width: ${imageCount === 1 ? '900px' : '800px'};
     margin: 0 auto;
     justify-items: center;
-  `,
-  imageCard: css`
-    position: relative;
-    border-radius: ${token.borderRadius}px;
-    overflow: hidden;
-    background: ${token.colorBgContainer};
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    aspect-ratio: 1;
-    height: ${imageCount === 1 ? '600px' : '380px'};
-    width: ${imageCount === 1 ? '600px' : '100%'};
   `,
   imageWrapper: css`
     position: relative;
@@ -72,6 +68,10 @@ const useStyles = createStyles(({ css, token }, { imageCount }: { imageCount?: n
       height: 100%;
       object-fit: cover;
     }
+  `,
+  placeholder: css`
+    color: ${token.colorTextPlaceholder};
+    font-size: 14px;
   `,
 }));
 
@@ -98,10 +98,10 @@ const ImageDisplay: FC = memo(() => {
     if (!hasActiveProvider) {
       return (
         <Alert
-          message={t('noProvider')}
           description={t('enableProvider')}
-          type="warning"
+          message={t('noProvider')}
           showIcon
+          type="warning"
         />
       );
     }
@@ -118,8 +118,8 @@ const ImageDisplay: FC = memo(() => {
     if (error) {
       return (
         <Alert
-          message={t('error')}
           description={error?.message || JSON.stringify(error)}
+          message={t('error')}
           showIcon
           type="error"
         />
@@ -130,12 +130,12 @@ const ImageDisplay: FC = memo(() => {
       return (
         <div className={styles.imageGrid}>
           {imageUrls.map((url, index) => (
-            <div key={url + index} className={styles.imageCard}>
+            <div className={styles.imageCard} key={url + index}>
               <div className={styles.imageWrapper}>
                 <Image
                   alt={`${displayTask?.prompt || t('generatedImage')} ${index + 1}`}
-                  src={url}
                   preview={true}
+                  src={url}
                   style={{ objectFit: 'cover' }}
                 />
               </div>

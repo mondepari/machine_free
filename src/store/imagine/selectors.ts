@@ -1,4 +1,3 @@
-import { ImagineStoreState } from './initialState';
 import type { ImagineStore } from './store';
 import { ImagineTask, ImagineSettings } from './initialState';
 
@@ -39,10 +38,10 @@ const selectViewedTask = (s: ImagineStore): ImagineTask | undefined => {
 // {{ ЭКСПОРТ ПРИСУТСТВУЕТ }}
 export const imagineSelectors = {
   selectCurrentTask,
+  selectHistory,
   selectImagineSettings,
   selectImagineStore,
   selectInputPrompt,
   selectIsGenerating,
-  selectHistory,
   selectViewedTask,
 };

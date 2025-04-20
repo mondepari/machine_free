@@ -1,12 +1,11 @@
-import { ReactNode } from 'react';
 
 export type GlobalImageProviderKey = string;
 
 export interface ImageProviderConfig {
+  apiKey?: string;
   enabled: boolean;
   enabledModels: string[];
   fetchOnClient?: boolean;
-  apiKey?: string;
   proxyUrl?: string;
 }
 
@@ -30,13 +29,13 @@ export interface KeyVaultsConfig {
 }
 
 export interface ImageProviderCard {
-  id: GlobalImageProviderKey;
-  name: string;
+  checkModel?: string;
   description?: string;
   enabled?: boolean;
-  url: string;
-  settings: ImageProviderSettings;
+  id: GlobalImageProviderKey;
   modelsUrl?: string;
+  name: string;
+  settings: ImageProviderSettings;
   showConfig?: boolean;
-  checkModel?: string;
+  url: string;
 } 

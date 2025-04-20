@@ -5,7 +5,7 @@ import { Form, Select } from 'antd';
 import { Flexbox } from 'react-layout-kit';
 import { useVideoProviderStore } from '@/store/videoProvider';
 import { type VideoProviderStore } from '@/store/videoProvider';
-import { type VideoProviderSettings } from '@/store/user/slices/videoProvider/initialState'; // Import type for initial values
+// Import type for initial values
 import { shallow } from 'zustand/shallow';
 
 interface VideoSettingsPanelProps {}
@@ -55,9 +55,9 @@ const VideoSettingsPanel = memo<VideoSettingsPanelProps>(() => {
       <Form form={form} layout="vertical" style={{ padding: 16 }}>
         <Form.Item label="Model" name="model">
           <Select
+            onChange={handleModelChange} // Update store on change
             options={videoModels} // Use defined models
             value={model} // Controlled component tied to store state
-            onChange={handleModelChange} // Update store on change
           />
         </Form.Item>
       </Form>

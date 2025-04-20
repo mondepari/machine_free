@@ -1,11 +1,9 @@
 'use client';
 
 import React, { memo } from 'react';
-import { Button, Input, Upload } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Input } from 'antd';
 import { ActionIcon } from '@lobehub/ui';
 import { SendHorizonal } from 'lucide-react';
-import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
 import { Flexbox } from 'react-layout-kit';
 import { shallow } from 'zustand/shallow';
 
@@ -25,10 +23,10 @@ const VideoPromptInput = memo<VideoPromptInputProps>(({ className, style }) => {
   // Select state and actions together - RE-ADD shallow
   const { prompt, isLoading, setPrompt, generateVideo } = useVideoProviderStore(
     (s: VideoProviderStore) => ({
-      prompt: s.prompt,
-      isLoading: s.isLoading,
-      setPrompt: s.setPrompt,
       generateVideo: s.generateVideo,
+      isLoading: s.isLoading,
+      prompt: s.prompt,
+      setPrompt: s.setPrompt,
     }),
     shallow // Re-add shallow
   );
@@ -60,7 +58,7 @@ const VideoPromptInput = memo<VideoPromptInputProps>(({ className, style }) => {
   const disabled = isLoading;
 
   return (
-    <Flexbox className={className} style={style} gap={8} direction="horizontal" padding={8}>
+    <Flexbox className={className} direction="horizontal" gap={8} padding={8} style={style}>
       <TextArea
         autoSize={{ maxRows: 8, minRows: 1 }}
         onChange={handlePromptChange}

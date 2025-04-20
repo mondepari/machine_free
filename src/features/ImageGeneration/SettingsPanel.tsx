@@ -1,17 +1,14 @@
 'use client';
 
 import {
-    Collapse,
-    Divider,
-    Form, // Импортируем FormInstance
-    Input, // <-- Import Input
+    Form, // <-- Import Input
     Radio,
     Select,
     Tooltip,
   } from 'antd';
   import { createStyles } from 'antd-style';
-  import { Settings, HelpCircle } from 'lucide-react';
-  import { memo, useCallback, useEffect, useMemo } from 'react'; // Убедимся, что memo импортирован
+  import { HelpCircle } from 'lucide-react';
+  import { memo, useCallback, useEffect } from 'react'; // Убедимся, что memo импортирован
   import { useTranslation } from 'react-i18next';
   import { Flexbox } from 'react-layout-kit';
   
@@ -101,11 +98,11 @@ import {
     // {{ Убедимся, что компонент возвращает JSX }}
     return (
       <Form
-        form={form}
         className={styles.form}
+        form={form}
+        initialValues={settings}
         layout="vertical"
         onValuesChange={handleValuesChange}
-        initialValues={settings}
       >
         <Form.Item label="Model" name="selectedModel">
           <Select options={modelOptions} />

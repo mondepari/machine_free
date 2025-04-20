@@ -1,23 +1,29 @@
 import { z } from 'zod';
 
 import { SessionGroupModel } from '@/database/models/sessionGroup';
-import { insertSessionGroupSchema } from '@/database/schemas';
-import { serverDB } from '@/database/server';
+import { DB_SessionGroupSchema } from '@/database/_deprecated/schemas/sessionGroup';
+import { getServerDBInstance } from '@/database/server/connection';
 import { authedProcedure, router } from '@/libs/trpc';
 import { SessionGroupItem } from '@/types/session';
 
-const sessionProcedure = authedProcedure.use(async (opts) => {
-  const { ctx } = opts;
 
+const sessionGroupProcedure = authedProcedure.use(async (opts) => {
+  const db = await getServerDBInstance();
   return opts.next({
     ctx: {
-      sessionGroupModel: new SessionGroupModel(serverDB, ctx.userId),
+      sessionGroupModel: new SessionGroupModel(db, opts.ctx.userId),
     },
   });
 });
 
 export const sessionGroupRouter = router({
-  createSessionGroup: sessionProcedure
+  addSessionGroup: sessionGroupProcedure
+    .input(DB_SessionGroupSchema)
+    .mutation(async ({ input, ctx }) => {
+      return ctx.sessionGroupModel.create({ name: input.name, sort: input.sort });
+    }),
+
+  createSessionGroup: sessionGroupProcedure
     .input(
       z.object({
         name: z.string(),
@@ -33,31 +39,32 @@ export const sessionGroupRouter = router({
       return data?.id;
     }),
 
-  getSessionGroup: sessionProcedure.query(async ({ ctx }): Promise<SessionGroupItem[]> => {
+  getSessionGroup: sessionGroupProcedure.query(async ({ ctx }): Promise<SessionGroupItem[]> => {
     return ctx.sessionGroupModel.query() as any;
   }),
 
-  removeAllSessionGroups: sessionProcedure.mutation(async ({ ctx }) => {
+  removeAllSessionGroups: sessionGroupProcedure.mutation(async ({ ctx }) => {
     return ctx.sessionGroupModel.deleteAll();
   }),
 
-  removeSessionGroup: sessionProcedure
+  removeSessionGroup: sessionGroupProcedure
     .input(z.object({ id: z.string(), removeChildren: z.boolean().optional() }))
     .mutation(async ({ input, ctx }) => {
       return ctx.sessionGroupModel.delete(input.id);
     }),
 
-  updateSessionGroup: sessionProcedure
+  updateSessionGroup: sessionGroupProcedure
     .input(
       z.object({
         id: z.string(),
-        value: insertSessionGroupSchema.partial(),
+        value: DB_SessionGroupSchema.partial(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      return ctx.sessionGroupModel.update(input.id, input.value);
+      return ctx.sessionGroupModel.update(input.id, input.value as Partial<SessionGroupItem>);
     }),
-  updateSessionGroupOrder: sessionProcedure
+
+  updateSessionGroupOrder: sessionGroupProcedure
     .input(
       z.object({
         sortMap: z.array(

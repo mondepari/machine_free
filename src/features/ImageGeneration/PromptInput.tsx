@@ -1,7 +1,7 @@
 'use client';
 
 import { ActionIcon } from '@lobehub/ui';
-import { Input, Spin } from 'antd'; // Добавляем Spin
+import { Input } from 'antd'; // Добавляем Spin
 import { SendHorizonal } from 'lucide-react';
 import { memo } from 'react'; // Убираем useState
 import { useTranslation } from 'react-i18next';
@@ -37,6 +37,7 @@ const PromptInput = memo(() => {
     <Flexbox align={'flex-end'} gap={8} horizontal width={'100%'}>
       <TextArea
         autoSize={{ maxRows: 6, minRows: 2 }}
+        disabled={isGenerating} // Отключаем ввод во время генерации
         onChange={(e) => setInputPrompt(e.target.value)} // Обновляем стор
         onPressEnter={(e) => {
           if (!e.shiftKey && !isGenerating) { // Проверяем !isGenerating
@@ -47,15 +48,14 @@ const PromptInput = memo(() => {
         placeholder={'Введите промпт для генерации изображения...'} // TODO: Локализация
         style={{ flex: 1 }}
         value={prompt} // Берем значение из стора
-        disabled={isGenerating} // Отключаем ввод во время генерации
       />
       <ActionIcon
+        disable={!prompt || isGenerating} // Use disable instead of disabled
         icon={SendHorizonal} // Always provide the Lucide icon
         loading={isGenerating} // Use the loading prop for the spinner
-        title={'Сгенерировать'} // TODO: Локализация
         onClick={handleSend}
         size={'large'}
-        disable={!prompt || isGenerating} // Use disable instead of disabled
+        title={'Сгенерировать'} // TODO: Локализация
       />
     </Flexbox>
   );

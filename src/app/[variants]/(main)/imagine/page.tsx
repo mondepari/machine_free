@@ -13,26 +13,16 @@ import SettingsPanel from '@/features/ImageGeneration/SettingsPanel';
 
 // Video Generation Components
 import {
-  VideoDisplay,
-  VideoHistoryPanel,
   VideoPromptInput,
   VideoSettingsPanel,
 } from '@/features/VideoGeneration';
 
 const useStyles = createStyles(({ css, token }) => ({
-  settingsPanel: css`
-    width: 320px;
+  historyPanel: css`
+    width: 280px;
     height: 100%;
-    border-inline-end: 1px solid ${token.colorBorderSecondary};
-    padding: 16px;
-    overflow-y: auto;
-  `,
-  mainArea: css`
-    flex: 1;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
+    border-inline-start: 1px solid ${token.colorBorderSecondary};
+    overflow-y: hidden;
   `,
   imageDisplayContainer: css`
     flex: 1;
@@ -43,14 +33,22 @@ const useStyles = createStyles(({ css, token }) => ({
     min-height: 200px;
     width: 100%;
   `,
+  mainArea: css`
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+  `,
   promptInputContainer: css`
     width: 100%;
   `,
-  historyPanel: css`
-    width: 280px;
+  settingsPanel: css`
+    width: 320px;
     height: 100%;
-    border-inline-start: 1px solid ${token.colorBorderSecondary};
-    overflow-y: hidden;
+    border-inline-end: 1px solid ${token.colorBorderSecondary};
+    padding: 16px;
+    overflow-y: auto;
   `,
   tabsContainer: css`
     padding: 0 16px;
@@ -78,14 +76,14 @@ const ImaginePage = memo(() => {
   const VideoHistoryPlaceholder = () => <div>Video History Placeholder</div>;
 
   return (
-    <Flexbox height={'100%'} width={'100%'} style={{ flexDirection: 'column' }}>
+    <Flexbox height={'100%'} style={{ flexDirection: 'column' }} width={'100%'}>
       {/* Tabs for switching modes */}
       <Flexbox className={styles.tabsContainer}>
         <Tabs activeKey={activeTab} items={items} onChange={setActiveTab} />
       </Flexbox>
 
       {/* Main Content Area with 3 Columns */}
-      <Flexbox horizontal flex={1} height={'calc(100% - 50px)'} width={'100%'}>
+      <Flexbox flex={1} height={'calc(100% - 50px)'} horizontal width={'100%'}>
         {/* Левая колонка: Настройки */}
         <Flexbox className={styles.settingsPanel}>
           {activeTab === 'image' ? <SettingsPanel /> : <VideoSettingsPanel />}

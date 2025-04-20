@@ -2,15 +2,15 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
 import { DataImporterRepos } from '@/database/repositories/dataImporter';
-import { serverDB } from '@/database/server';
+import { getServerDBInstance } from '@/database/server/connection';
 import { authedProcedure, router } from '@/libs/trpc';
 import { S3 } from '@/server/modules/S3';
 import { ImportPgDataStructure } from '@/types/export';
 import { ImportResultData, ImporterEntryData } from '@/types/importer';
 
-const importProcedure = authedProcedure.use(async (opts) => {
-  const { ctx } = opts;
-  const dataImporterService = new DataImporterRepos(serverDB, ctx.userId);
+const importerProcedure = authedProcedure.use(async (opts) => {
+  const db = await getServerDBInstance();
+  const dataImporterService = new DataImporterRepos(db, opts.ctx.userId);
 
   return opts.next({
     ctx: { dataImporterService },
@@ -18,7 +18,7 @@ const importProcedure = authedProcedure.use(async (opts) => {
 });
 
 export const importerRouter = router({
-  importByFile: importProcedure
+  importByFile: importerProcedure
     .input(z.object({ pathname: z.string() }))
     .mutation(async ({ input, ctx }): Promise<ImportResultData> => {
       let data: ImporterEntryData | undefined;
@@ -45,7 +45,7 @@ export const importerRouter = router({
       return ctx.dataImporterService.importData(data);
     }),
 
-  importByPost: importProcedure
+  importByPost: importerProcedure
     .input(
       z.object({
         data: z.object({
@@ -60,7 +60,7 @@ export const importerRouter = router({
     .mutation(async ({ input, ctx }): Promise<ImportResultData> => {
       return ctx.dataImporterService.importData(input.data);
     }),
-  importPgByPost: importProcedure
+  importPgByPost: importerProcedure
     .input(
       z.object({
         data: z.record(z.string(), z.array(z.any())),

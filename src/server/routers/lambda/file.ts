@@ -5,7 +5,8 @@ import { serverDBEnv } from '@/config/db';
 import { AsyncTaskModel } from '@/database/models/asyncTask';
 import { ChunkModel } from '@/database/models/chunk';
 import { FileModel } from '@/database/models/file';
-import { serverDB } from '@/database/server';
+// import { serverDB } from '@/database/server';
+import { getServerDBInstance } from '@/database/server/connection';
 import { authedProcedure, router } from '@/libs/trpc';
 import { S3 } from '@/server/modules/S3';
 import { getFullFileUrl } from '@/server/utils/files';
@@ -14,13 +15,12 @@ import { FileListItem, QueryFileListSchema, UploadFileSchema } from '@/types/fil
 import { merge } from '@/utils/merge';
 
 const fileProcedure = authedProcedure.use(async (opts) => {
-  const { ctx } = opts;
-
+  const db = await getServerDBInstance();
   return opts.next({
     ctx: {
-      asyncTaskModel: new AsyncTaskModel(serverDB, ctx.userId),
-      chunkModel: new ChunkModel(serverDB, ctx.userId),
-      fileModel: new FileModel(serverDB, ctx.userId),
+      asyncTaskModel: new AsyncTaskModel(db, opts.ctx.userId),
+      chunkModel: new ChunkModel(db, opts.ctx.userId),
+      fileModel: new FileModel(db, opts.ctx.userId),
     },
   });
 });

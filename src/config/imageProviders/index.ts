@@ -1,38 +1,38 @@
 import { ImageProviderCard } from '@/types/imagine/settings';
 
 export const DefaultProvider: ImageProviderCard = {
-  id: 'default',
-  name: 'Default Provider',
+  checkModel: 'default-model',
   description: 'Default image generation provider with standard API endpoints',
   enabled: true,
-  url: 'https://api.example.com',
+  id: 'default',
+  name: 'Default Provider',
   settings: {
-    showApiKey: true,
-    showModelFetcher: true,
     proxyUrl: {
-      title: 'API URL',
       desc: 'Enter the API endpoint URL for the default provider',
       placeholder: 'https://api.example.com/v1',
+      title: 'API URL',
     },
+    showApiKey: true,
+    showModelFetcher: true,
   },
-  checkModel: 'default-model',
+  url: 'https://api.example.com',
 };
 
 export const CustomProvider: ImageProviderCard = {
-  id: 'custom',
-  name: 'Custom Provider',
   description: 'Configure your own image generation provider with custom API endpoints',
   enabled: false,
-  url: '',
+  id: 'custom',
+  name: 'Custom Provider',
   settings: {
-    showApiKey: true,
-    showModelFetcher: true,
     proxyUrl: {
-      title: 'API URL',
       desc: 'Enter your custom API endpoint URL',
       placeholder: 'https://your-api-endpoint.com/v1',
+      title: 'API URL',
     },
+    showApiKey: true,
+    showModelFetcher: true,
   },
+  url: '',
 };
 
 export const DEFAULT_IMAGE_PROVIDER_LIST = [

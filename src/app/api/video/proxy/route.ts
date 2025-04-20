@@ -1,3 +1,5 @@
+/* global HeadersInit, RequestInit */
+
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -5,7 +7,7 @@ export async function POST(request: Request) {
     // 1. Get data from the frontend request
     const { prompt, model, videoApiKey, videoEndpoint } = await request.json();
 
-    console.log('[API Proxy] Received request:', { prompt, model, endpoint: videoEndpoint });
+    console.log('[API Proxy] Received request:', { endpoint: videoEndpoint, model, prompt });
 
     // 2. Validate necessary data
     if (!prompt || !model || !videoEndpoint) {
@@ -35,9 +37,9 @@ export async function POST(request: Request) {
 
     // 4. Make the actual request from the server
     const response = await fetch(videoEndpoint, {
-      method: 'POST',
-      headers: headers,
       body: JSON.stringify(payload),
+      headers: headers,
+      method: 'POST',
     });
 
     console.log('[API Proxy] External API response status:', response.status);
@@ -51,17 +53,17 @@ export async function POST(request: Request) {
       let errorDetails = responseBody;
       try {
         errorDetails = JSON.parse(responseBody);
-      } catch (e) { /* Ignore parsing error */ }
+      } catch { /* Ignore parsing error */ }
 
       // Forward the error status and body from the external API
-      return NextResponse.json({ error: 'External API Error', details: errorDetails }, { status: response.status });
+      return NextResponse.json({ details: errorDetails, error: 'External API Error' }, { status: response.status });
     }
 
     // If response is OK, assume it's JSON and forward it
     let successData;
     try {
       successData = JSON.parse(responseBody);
-    } catch (e) {
+    } catch {
       // If parsing fails even on success, return an internal error
       return NextResponse.json({ error: 'Failed to parse successful external API response' }, { status: 500 });
     }

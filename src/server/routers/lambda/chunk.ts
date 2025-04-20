@@ -9,25 +9,28 @@ import { EmbeddingModel } from '@/database/models/embedding';
 import { FileModel } from '@/database/models/file';
 import { MessageModel } from '@/database/models/message';
 import { knowledgeBaseFiles } from '@/database/schemas';
-import { serverDB } from '@/database/server';
+import { getServerDBInstance } from '@/database/server/connection';
 import { authedProcedure, router } from '@/libs/trpc';
 import { keyVaults } from '@/libs/trpc/middleware/keyVaults';
 import { getServerDefaultFilesConfig } from '@/server/globalConfig';
 import { initAgentRuntimeWithUserPayload } from '@/server/modules/AgentRuntime';
 import { ChunkService } from '@/server/services/chunk';
 import { SemanticSearchSchema } from '@/types/rag';
+import { dbMiddleware } from '@/libs/trpc/middleware/db';
+import { CreateChunkParams, EmbeddingChunksParams } from '@/server/services/chunk/type';
+import { KnowledgeBaseModel } from '@/database/models/knowledgeBase';
 
-const chunkProcedure = authedProcedure.use(keyVaults).use(async (opts) => {
-  const { ctx } = opts;
+const chunkProcedure = dbMiddleware.use(async (opts) => {
+  const chunkService = new ChunkService(opts.ctx.db, opts.ctx.userId);
 
   return opts.next({
     ctx: {
-      asyncTaskModel: new AsyncTaskModel(serverDB, ctx.userId),
-      chunkModel: new ChunkModel(serverDB, ctx.userId),
-      chunkService: new ChunkService(ctx.userId),
-      embeddingModel: new EmbeddingModel(serverDB, ctx.userId),
-      fileModel: new FileModel(serverDB, ctx.userId),
-      messageModel: new MessageModel(serverDB, ctx.userId),
+      asyncTaskModel: new AsyncTaskModel(opts.ctx.db, opts.ctx.userId),
+      chunkModel: new ChunkModel(opts.ctx.db, opts.ctx.userId),
+      chunkService,
+      embeddingModel: new EmbeddingModel(opts.ctx.db, opts.ctx.userId),
+      fileModel: new FileModel(opts.ctx.db, opts.ctx.userId),
+      messageModel: new MessageModel(opts.ctx.db, opts.ctx.userId),
     },
   });
 });
@@ -173,11 +176,11 @@ export const chunkRouter = router({
         let finalFileIds = input.fileIds ?? [];
 
         if (input.knowledgeIds && input.knowledgeIds.length > 0) {
-          const knowledgeFiles = await serverDB.query.knowledgeBaseFiles.findMany({
+          const knowledgeFiles = await ctx.db.query.knowledgeBaseFiles.findMany({
             where: inArray(knowledgeBaseFiles.knowledgeBaseId, input.knowledgeIds),
           });
 
-          finalFileIds = knowledgeFiles.map((f) => f.fileId).concat(finalFileIds);
+          finalFileIds = knowledgeFiles.map((f: any) => f.fileId).concat(finalFileIds);
         }
 
         const chunks = await ctx.chunkModel.semanticSearchForChat({
@@ -198,4 +201,52 @@ export const chunkRouter = router({
         });
       }
     }),
+
+  createChunks: chunkProcedure
+    .input(z.custom<CreateChunkParams>())
+    .mutation(async ({ input, ctx }) => {
+      return ctx.chunkService.createChunks(input);
+    }),
+
+  deleteChunks: chunkProcedure
+    .input(
+      z.object({
+        chunkIds: z.array(z.string()).optional(),
+        fileId: z.string(),
+        knowledgeBaseId: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return ctx.chunkService.deleteChunks(input.knowledgeBaseId, input.fileId, input.chunkIds);
+    }),
+
+  embeddingChunks: chunkProcedure
+    .input(z.custom<EmbeddingChunksParams>())
+    .mutation(async ({ input, ctx }) => {
+      return ctx.chunkService.embeddingChunks(input);
+    }),
+
+  getFilesChunks: chunkProcedure
+    .input(z.object({ fileIds: z.array(z.string()), knowledgeBaseId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      return ctx.chunkService.getFilesChunks(input.knowledgeBaseId, input.fileIds);
+    }),
+
+  // Commenting out this mutation temporarily
+  /*
+  createKnowledgeBaseChunks: chunkProcedure
+    .input(
+      z.object({
+        fileIds: z.array(z.string()),
+        id: z.string(),
+        vectorService: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Use chunkService from context
+      return ctx.chunkService.createKnowledgeBaseChunks(input);
+    }),
+  */
 });
+
+export type ChunkRouter = typeof chunkRouter;

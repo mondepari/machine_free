@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   let payload;
   try {
     payload = await req.json();
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
   const { fileId } = payload;
@@ -116,8 +116,8 @@ export async function POST(req: Request) {
 
     // 7. Return Success Response
     return NextResponse.json({
-      message: 'Music uploaded to Sonic API successfully',
       data: uploadResponse,
+      message: 'Music uploaded to Sonic API successfully',
     });
 
   } catch (error: any) {

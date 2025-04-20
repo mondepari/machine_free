@@ -16,27 +16,27 @@ const ImageProviderSettings = memo(() => {
       <Flexbox gap={24}>
         <ProviderConfig
           id="default"
-          title={t('imageProvider.default.title')}
           name="default"
-          showApiKey={true}
           proxyUrl={{
-            title: t('imageProvider.default.proxyUrl.title'),
             desc: t('imageProvider.default.proxyUrl.desc'),
             placeholder: 'https://api.openai.com/v1',
+            title: t('imageProvider.default.proxyUrl.title'),
           }}
+          showApiKey={true}
+          title={t('imageProvider.default.title')}
         />
         <ModelChecker provider="default" />
 
         <ProviderConfig
           id="custom"
-          title={t('imageProvider.custom.title')}
           name="custom"
-          showApiKey={true}
           proxyUrl={{
-            title: t('imageProvider.custom.proxyUrl.title'),
             desc: t('imageProvider.custom.proxyUrl.desc'),
             placeholder: 'https://api.custom-provider.com/v1',
+            title: t('imageProvider.custom.proxyUrl.title'),
           }}
+          showApiKey={true}
+          title={t('imageProvider.custom.title')}
         />
         <ModelChecker provider="custom" />
       </Flexbox>

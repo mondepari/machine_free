@@ -1,14 +1,5 @@
-import { Pool as NeonPool, neonConfig } from '@neondatabase/serverless';
-import { drizzle as neonDrizzle } from 'drizzle-orm/neon-serverless';
-import { drizzle as nodeDrizzle } from 'drizzle-orm/node-postgres';
-import { Pool as NodePool } from 'pg';
-import ws from 'ws';
 
-import { serverDBEnv } from '@/config/db';
-import { isServerMode } from '@/const/version';
-import * as schema from '@/database/schemas';
 
-import { LobeChatDatabase } from '../type';
 
 const DB_NAME = 'lobe-chat';
 const DB_VERSION = 1;

@@ -1,11 +1,11 @@
+/* global HeadersInit */
 import type { StateCreator } from 'zustand/vanilla';
 import { UploadFile } from 'antd/es/upload/interface';
 import { nanoid } from 'nanoid';
 
 // Imports needed for saving to storage (mirrored from imagine store)
 import { ClientService } from '@/services/file/client';
-import { fileEnv } from '@/config/file';
-import { clientS3Storage } from '@/services/file/ClientS3'; // Assuming direct S3 client is used sometimes
+// Assuming direct S3 client is used sometimes
 import { userProfileSelectors } from '@/store/user/selectors';
 import { useUserStore } from '@/store/user';
 
@@ -14,15 +14,16 @@ import { VideoProviderStore } from '../store';
 
 // Define the state structure for this slice
 export interface VideoTaskAction {
-  setPrompt: (prompt: string) => void;
-  setModel: (model: string) => void;
-  setImageFile: (file: UploadFile | null) => void;
-  generateVideo: () => Promise<void>; // Action to trigger the generation
-  // Internal actions (optional, might be called by generateVideo)
-  _setLoading: (isLoading: boolean) => void;
-  _setVideoUrl: (url: string | undefined) => void;
-  _setError: (error: any) => void;
   _addToHistory: (result: { prompt: string; videoUrl: string }) => void;
+  _setError: (error: any) => void;
+  // Action to trigger the generation
+// Internal actions (optional, might be called by generateVideo)
+  _setLoading: (isLoading: boolean) => void;
+  _setVideoUrl: (url: string | undefined) => void; 
+  generateVideo: () => Promise<void>;
+  setImageFile: (file: UploadFile | null) => void;
+  setModel: (model: string) => void;
+  setPrompt: (prompt: string) => void;
 }
 
 // Helper function to convert file to base64 (if needed for API)
@@ -30,7 +31,7 @@ const fileToBase64 = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
+    reader.addEventListener('load', () => resolve(reader.result as string));
     reader.onerror = (error) => reject(error);
   });
 
@@ -64,10 +65,10 @@ const saveVideoToStorage = async (videoUrl: string, prompt: string, model: strin
     const fileData = {
       fileHash,
       fileType: file.type,
+      metadata: { generated: true, model, prompt },
       name: file.name,
       size: file.size,
-      url: `client-s3://${fileHash}`,
-      metadata: { prompt, generated: true, model }
+      url: `client-s3://${fileHash}`
     };
 
     console.log('Video file metadata prepared:', fileData);
@@ -99,42 +100,23 @@ export const createVideoTaskSlice: StateCreator<
   [],
   VideoTaskAction
 > = (set, get) => ({
-  setPrompt: (prompt) => {
-    set({ prompt }, false, 'setPrompt');
+  _addToHistory: (result) => {
+    const newHistoryItem = {
+      id: nanoid(),
+      prompt: result.prompt,
+      timestamp: Date.now(),
+      videoUrl: result.videoUrl,
+    };
+    set((state) => ({ history: [newHistoryItem, ...state.history] }), false, 'addToHistory');
   },
-  setModel: (model) => {
-    set({ model }, false, 'setModel');
-  },
-  setImageFile: async (file) => {
-    if (file && file.originFileObj) {
-      try {
-        const base64 = await fileToBase64(file.originFileObj);
-        set({ imageBase64: base64 }, false, 'setImageFile');
-      } catch (error) {
-        console.error('Error converting file to base64:', error);
-        set({ imageBase64: undefined }, false, 'setImageFile'); // Clear on error
-      }
-    } else {
-      set({ imageBase64: undefined }, false, 'setImageFile'); // Clear if no file
-    }
+  _setError: (error) => {
+    set({ error, isLoading: false, videoUrl: undefined }, false, 'setError'); // Clear url on error
   },
   _setLoading: (isLoading) => {
     set({ isLoading }, false, 'setLoading');
   },
   _setVideoUrl: (url) => {
-    set({ videoUrl: url, error: undefined }, false, 'setVideoUrl'); // Clear error on success
-  },
-  _setError: (error) => {
-    set({ error, isLoading: false, videoUrl: undefined }, false, 'setError'); // Clear url on error
-  },
-  _addToHistory: (result) => {
-    const newHistoryItem = {
-      id: nanoid(),
-      prompt: result.prompt,
-      videoUrl: result.videoUrl,
-      timestamp: Date.now(),
-    };
-    set((state) => ({ history: [newHistoryItem, ...state.history] }), false, 'addToHistory');
+    set({ error: undefined, videoUrl: url }, false, 'setVideoUrl'); // Clear error on success
   },
   generateVideo: async () => {
     console.log('[generateVideo] Action started.');
@@ -222,9 +204,9 @@ export const createVideoTaskSlice: StateCreator<
       console.log('[generateVideo] Proxy Payload:', payload);
 
       const response = await fetch(proxyEndpoint, {
-        method: 'POST',
-        headers: headers,
         body: JSON.stringify(payload),
+        headers: headers,
+        method: 'POST',
       });
       console.log('[generateVideo] Proxy Response Status:', response.status);
 
@@ -283,5 +265,24 @@ export const createVideoTaskSlice: StateCreator<
       }
     }
     console.log('[generateVideo] Action finished.');
+  },
+  setImageFile: async (file) => {
+    if (file && file.originFileObj) {
+      try {
+        const base64 = await fileToBase64(file.originFileObj);
+        set({ imageBase64: base64 }, false, 'setImageFile');
+      } catch (error) {
+        console.error('Error converting file to base64:', error);
+        set({ imageBase64: undefined }, false, 'setImageFile'); // Clear on error
+      }
+    } else {
+      set({ imageBase64: undefined }, false, 'setImageFile'); // Clear if no file
+    }
+  },
+  setModel: (model) => {
+    set({ model }, false, 'setModel');
+  },
+  setPrompt: (prompt) => {
+    set({ prompt }, false, 'setPrompt');
   },
 }); 

@@ -5,7 +5,7 @@ import { enableClerk } from '@/const/auth';
 import { MessageModel } from '@/database/models/message';
 import { SessionModel } from '@/database/models/session';
 import { UserModel, UserNotFoundError } from '@/database/models/user';
-import { serverDB } from '@/database/server';
+import { getServerDBInstance } from '@/database/server/connection';
 import { ClerkAuth } from '@/libs/clerk-auth';
 import { LobeNextAuthDbAdapter } from '@/libs/next-auth/adapter';
 import { authedProcedure, router } from '@/libs/trpc';
@@ -20,11 +20,12 @@ import {
 import { UserSettings } from '@/types/user/settings';
 
 const userProcedure = authedProcedure.use(async (opts) => {
+  const db = await getServerDBInstance();
   return opts.next({
     ctx: {
       clerkAuth: new ClerkAuth(),
-      nextAuthDbAdapter: LobeNextAuthDbAdapter(serverDB),
-      userModel: new UserModel(serverDB, opts.ctx.userId),
+      nextAuthDbAdapter: LobeNextAuthDbAdapter(db),
+      userModel: new UserModel(db, opts.ctx.userId),
     },
   });
 });
@@ -39,6 +40,7 @@ export const userRouter = router({
   }),
 
   getUserState: userProcedure.query(async ({ ctx }): Promise<UserInitializationState> => {
+    const db = await getServerDBInstance();
     let state: Awaited<ReturnType<UserModel['getUserState']>> | undefined;
 
     // get or create first-time user
@@ -77,10 +79,10 @@ export const userRouter = router({
       }
     }
 
-    const messageModel = new MessageModel(serverDB, ctx.userId);
+    const messageModel = new MessageModel(db, ctx.userId);
     const hasMoreThan4Messages = await messageModel.hasMoreThanN(4);
 
-    const sessionModel = new SessionModel(serverDB, ctx.userId);
+    const sessionModel = new SessionModel(db, ctx.userId);
     const hasAnyMessages = await messageModel.hasMoreThanN(0);
     const hasExtraSession = await sessionModel.hasMoreThanN(1);
 

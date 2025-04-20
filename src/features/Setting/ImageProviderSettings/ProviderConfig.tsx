@@ -1,17 +1,13 @@
 'use client';
 
+import React, { memo, useCallback } from 'react';
 import { Form, Input, Switch } from 'antd';
 import { createStyles } from 'antd-style';
-import { debounce } from 'lodash-es';
-import { memo, useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Flexbox } from 'react-layout-kit';
 
-import { useImageProvider } from '@/hooks/useImageProvider';
-import { GlobalImageProviderKey } from '@/types/imagine/settings';
+import { useTranslation } from 'react-i18next';
+
 import { useSettingStore } from '@/store/settings';
 
-import ModelChecker from './ModelChecker';
 
 const useStyles = createStyles(({ css, token }) => ({
   desc: css`
@@ -25,21 +21,21 @@ const useStyles = createStyles(({ css, token }) => ({
 }));
 
 interface ProxyUrlConfig {
-  title?: string;
   desc?: string;
   placeholder: string;
+  title?: string;
 }
 
 interface ProviderConfigProps {
   id: string;
-  title: string;
   name: string;
-  showApiKey?: boolean;
   proxyUrl?: {
-    title?: string;
     desc?: string;
     placeholder: string;
+    title?: string;
   };
+  showApiKey?: boolean;
+  title: string;
 }
 
 const ProviderConfig = memo<ProviderConfigProps>(({ id, title, showApiKey, proxyUrl }) => {
@@ -86,9 +82,9 @@ const ProviderConfig = memo<ProviderConfigProps>(({ id, title, showApiKey, proxy
           {showApiKey && (
             <Form.Item label="API Key">
               <Input.Password
-                value={provider.apiKey}
                 onChange={handleApiKeyChange}
                 placeholder="Enter your API key"
+                value={provider.apiKey}
               />
             </Form.Item>
           )}
@@ -98,9 +94,9 @@ const ProviderConfig = memo<ProviderConfigProps>(({ id, title, showApiKey, proxy
               tooltip={proxyUrl.desc}
             >
               <Input
-                value={provider.proxyUrl?.title}
                 onChange={handleProxyUrlChange}
                 placeholder={proxyUrl.placeholder}
+                value={provider.proxyUrl?.title}
               />
             </Form.Item>
           )}

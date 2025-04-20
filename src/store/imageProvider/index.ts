@@ -1,10 +1,8 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { ImageProviderConfigKey, ImageProviderModelListKey } from '@/app/[variants]/(main)/settings/imagine/const';
 import { ProviderItem } from '@/app/[variants]/(main)/settings/imagine/type';
 import { LocalDB } from '@/database/core';
-import { ImageProviderType } from '@/types/settings';
 
 export interface ImageProviderStore {
   enabledModels: Record<string, string[]>;

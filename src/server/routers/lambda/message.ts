@@ -1,20 +1,24 @@
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { serverDB } from '@/database/server';
 
+import { CHAT_FUNCTION_SCHEMA } from '@/const/schema';
 import { MessageModel } from '@/database/models/message';
 import { updateMessagePluginSchema } from '@/database/schemas';
-import { serverDB } from '@/database/server';
+import { getServerDBInstance } from '@/database/server/connection';
 import { authedProcedure, publicProcedure, router } from '@/libs/trpc';
 import { getFullFileUrl } from '@/server/utils/files';
 import { ChatMessage } from '@/types/message';
 import { BatchTaskResult } from '@/types/service';
+// import { ChatMessageSchema } from '@/types/chatMessage'; // Commented out due to import error
 
 type ChatMessageList = ChatMessage[];
 
 const messageProcedure = authedProcedure.use(async (opts) => {
-  const { ctx } = opts;
-
+  const db = await getServerDBInstance();
   return opts.next({
-    ctx: { messageModel: new MessageModel(serverDB, ctx.userId) },
+    ctx: { messageModel: new MessageModel(db, opts.ctx.userId) },
   });
 });
 
@@ -55,13 +59,11 @@ export const messageRouter = router({
       return ctx.messageModel.countWords(input);
     }),
 
-  createMessage: messageProcedure
-    .input(z.object({}).passthrough().partial())
-    .mutation(async ({ input, ctx }) => {
-      const data = await ctx.messageModel.create(input as any);
-
-      return data.id;
-    }),
+  // createMessage: messageProcedure // Commented out due to ChatMessageSchema import error
+  //   .input(ChatMessageSchema)
+  //   .mutation(async ({ ctx, input }) => {
+  //     return ctx.messageModel.create(input);
+  //   }),
 
   // TODO: it will be removed in V2
   getAllMessages: messageProcedure.query(async ({ ctx }): Promise<ChatMessageList> => {
@@ -122,9 +124,9 @@ export const messageRouter = router({
     }),
 
   removeMessages: messageProcedure
-    .input(z.object({ ids: z.array(z.string()) }))
-    .mutation(async ({ input, ctx }) => {
-      return ctx.messageModel.deleteMessages(input.ids);
+    .input(z.array(z.string()))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.messageModel.deleteMessages(input);
     }),
 
   removeMessagesByAssistant: messageProcedure

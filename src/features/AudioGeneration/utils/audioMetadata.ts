@@ -1,10 +1,10 @@
 export interface AudioMetadata {
-  title?: string;
-  artist?: string;
   album?: string;
-  genre?: string;
-  duration?: number;
+  artist?: string;
   cover?: string;
+  duration?: number;
+  genre?: string;
+  title?: string;
 }
 
 export const extractAudioMetadata = async (audioUrl: string): Promise<AudioMetadata> => {
@@ -25,12 +25,12 @@ export const extractAudioMetadata = async (audioUrl: string): Promise<AudioMetad
         // Try to extract ID3 tags if available
         if (blob.type === 'audio/mpeg') {
           const reader = new FileReader();
-          reader.onload = (e) => {
+          reader.addEventListener('load', (e) => {
             const arrayBuffer = e.target?.result as ArrayBuffer;
             const dataView = new DataView(arrayBuffer);
             
             // Check for ID3 tag
-            if (dataView.getUint32(0) === 0x49443300) { // "ID3"
+            if (dataView.getUint32(0) === 0x49_44_33_00) { // "ID3"
               // Basic ID3v2 parsing
               const id3Size = dataView.getUint32(6);
               const id3Data = new Uint8Array(arrayBuffer, 10, id3Size);
@@ -133,7 +133,7 @@ export const extractAudioMetadata = async (audioUrl: string): Promise<AudioMetad
             }
             
             resolve(metadata);
-          };
+          });
           reader.readAsArrayBuffer(blob);
         } else {
           resolve(metadata);

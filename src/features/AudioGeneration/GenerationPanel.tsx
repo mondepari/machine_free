@@ -7,7 +7,7 @@ import SoundList from './SoundList';
 import { SoundItemData } from './SoundItem';
 import Paragraph from 'antd/es/typography/Paragraph';
 import Title from 'antd/es/typography/Title';
-import { MusicAPITaskStatusResponse, MusicAPIAudioResult } from '@/types/musicapi';
+import { MusicAPIAudioResult } from '@/types/musicapi';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -20,47 +20,50 @@ const MAX_POLLING_ATTEMPTS = 48;
 // Define props expected from the parent page
 interface GenerationPanelProps {
   currentPlayingId: string | null;
-  likedSounds: Record<string, boolean>;
-  onPlayPause: (id: string, audioSrc: string) => void;
-  onLikeToggle: (id: string) => void;
-  songDescription: string;
   isCustomMode: boolean;
-  onSongDescriptionChange: (value: string) => void;
-  onIsCustomModeChange: (value: boolean) => void;
-  styleValue: string;
-  onStyleChange: (value: string) => void;
+  likedSounds: Record<string, boolean>;
   lyricsValue: string;
+  onIsCustomModeChange: (value: boolean) => void;
+  onLikeToggle: (id: string) => void;
   onLyricsChange: (value: string) => void;
+  onPlayPause: (id: string, audioSrc: string) => void;
+  onSongDescriptionChange: (value: string) => void;
+  onStyleChange: (value: string) => void;
+  songDescription: string;
+  styleValue: string;
 }
 
 // Interface for the expected structure from musicapi.ai's get-music endpoint
 // *** IMPORTANT: Adapt this interface based on actual API response! ***
 interface MusicApiTaskStatus {
-  task_id: string;
-  status: 'processing' | 'pending' | 'queued' | 'running' | 'completed' | 'failed' | 'error' | string; // Add all possible statuses
-  // Example result structure (Adapt!) - often nested
+  detail?: string;
+  // Add all possible statuses
+// Example result structure (Adapt!) - often nested
   result?: {
     audios?: {
-        id?: string; // May not be the same as task_id
-        title?: string;
-        download_url?: string; // Check actual field name
-        image_url?: string;    // Check actual field name
+        download_url?: string; 
+        // Check actual field name
         duration?: number;
-        tags?: string | string[]; // Check actual field name and type
+        id?: string; // Check actual field name
+        image_url?: string;    
+        tags?: string | string[];
+        // May not be the same as task_id
+        title?: string; // Check actual field name and type
         // Add other relevant fields
     }[];
     // Or maybe the result is directly an object or array of objects?
     // e.g., result: { id: '...', title: '...', download_url: '...' }
     // Or result: [ { id: '...', ... }, { ... } ]
-  };
-  detail?: string; // For error messages
+  }; 
+  status: 'processing' | 'pending' | 'queued' | 'running' | 'completed' | 'failed' | 'error' | string;
+  task_id: string; // For error messages
   // Add other top-level fields if they exist
 }
 
 // Helper function/component for styling input groups
-const InputGroup: React.FC<{ title: string; children: React.ReactNode; action?: React.ReactNode }> = ({ title, children, action }) => (
-  <Flexbox gap={8} style={{ padding: '12px 16px', background: 'rgba(0,0,0,0.2)', borderRadius: 8 }}>
-    <Flexbox horizontal justify="space-between" align="center">
+const InputGroup: React.FC<{ action?: React.ReactNode, children: React.ReactNode; title: string; }> = ({ title, children, action }) => (
+  <Flexbox gap={8} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '12px 16px' }}>
+    <Flexbox align="center" horizontal justify="space-between">
       <Text strong style={{color: 'white'}}>{title}</Text>
       {action}
     </Flexbox>
@@ -119,7 +122,7 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
   const pollTaskStatus = async (taskId: string, modelUsed: string, msgKey: string) => {
     if (pollingAttemptsRef.current >= MAX_POLLING_ATTEMPTS) {
       console.warn(`Polling stopped for task ${taskId} after ${MAX_POLLING_ATTEMPTS} attempts.`);
-      message.warning({ content: `Task ${taskId} is taking longer than expected. Check back later.`, key: msgKey, duration: 5 });
+      message.warning({ content: `Task ${taskId} is taking longer than expected. Check back later.`, duration: 5, key: msgKey });
       setIsLoading(false);
       if (pollingTimeoutRef.current) clearTimeout(pollingTimeoutRef.current);
       pollingTimeoutRef.current = null;
@@ -135,7 +138,7 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
       if (!response.ok) {
         console.error(`Polling error: Backend /api/music/status returned status ${response.status}`, response);
         const errorMessage = `Error checking task status: ${response.statusText || 'Unknown error'}`;
-        message.error({ content: errorMessage, key: msgKey, duration: 5 });
+        message.error({ content: errorMessage, duration: 5, key: msgKey });
         setIsLoading(false);
         if (pollingTimeoutRef.current) clearTimeout(pollingTimeoutRef.current);
         pollingTimeoutRef.current = null;
@@ -161,7 +164,7 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
       if (!currentStatus) {
         // If status is still unknown, treat as processing but log a warning
         console.warn(`Task ${taskId} status could not be determined from response. Treating as processing. Data:`, taskData);
-        message.info({ content: `Task ${taskId} status is currently unclear. Continuing to check...`, key: msgKey, duration: 3 });
+        message.info({ content: `Task ${taskId} status is currently unclear. Continuing to check...`, duration: 3, key: msgKey });
         pollingTimeoutRef.current = setTimeout(() => pollTaskStatus(taskId, modelUsed, msgKey), POLLING_INTERVAL);
       } else if (processingStatuses.includes(currentStatus)) {
         console.log(`Task ${taskId} still processing (MusicAPI status: ${currentStatus})...`);
@@ -186,19 +189,19 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
                      const id = r.clip_id || taskId + '_' + Date.now() + '_' + Math.random();
                      
                      return {
-                         id: id.toString(),
-                         title: r.title || 'Generated Sound',
                          audioUrl: audioUrl,
-                         imageUrl: r.image_url || undefined,
                          duration: r.duration,
-                         tags: r.tags ? (typeof r.tags === 'string' ? r.tags.split(',').map((t: string) => t.trim()) : r.tags) : [],
+                         id: id.toString(),
+                         imageUrl: r.image_url || undefined,
                          isLiked: false,
+                         tags: r.tags ? (typeof r.tags === 'string' ? r.tags.split(',').map((t: string) => t.trim()) : r.tags) : [],
+                         title: r.title || 'Generated Sound',
                      };
                  })
                  .filter((s): s is SoundItemData => s !== null);
 
               if (completedSounds.length > 0) {
-                  message.success({ content: `Generation complete! ${completedSounds.length} sound(s) added.`, key: msgKey, duration: 5 });
+                  message.success({ content: `Generation complete! ${completedSounds.length} sound(s) added.`, duration: 5, key: msgKey });
                   completedSounds.forEach(async (sound) => {
                     // Add to local UI state immediately
                     handleSoundGenerated(sound);
@@ -207,18 +210,18 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
                     try {
                       console.log(`[pollTaskStatus] Attempting to save sound ${sound.id} (${sound.title}) to backend...`);
                       const saveResponse = await fetch('/api/music/save-audio', {
-                        method: 'POST',
+                        body: JSON.stringify({
+                          apiClipId: sound.id,
+                          audioUrl: sound.audioUrl,
+                          duration: sound.duration,
+                          tags: sound.tags,
+                          title: sound.title, // Pass the original API clip_id (stored in our sound.id)
+                          // Add other relevant metadata if needed by backend
+                        }),
                         headers: {
                           'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
-                          audioUrl: sound.audioUrl,
-                          title: sound.title,
-                          duration: sound.duration,
-                          tags: sound.tags,
-                          apiClipId: sound.id, // Pass the original API clip_id (stored in our sound.id)
-                          // Add other relevant metadata if needed by backend
-                        }),
+                        method: 'POST',
                       });
                       
                       if (!saveResponse.ok) {
@@ -236,11 +239,11 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
                     }
                   });
               } else {
-                   message.warning({ content: `Task ${taskId} completed, but no valid audio data found in response.`, key: msgKey, duration: 5 });
+                   message.warning({ content: `Task ${taskId} completed, but no valid audio data found in response.`, duration: 5, key: msgKey });
               }
         } else {
              console.error(`Polling error: SUCCESS status but no data array found. Data:`, taskData);
-             message.error({ content: `Task completed but failed to parse results.`, key: msgKey, duration: 5 });
+             message.error({ content: `Task completed but failed to parse results.`, duration: 5, key: msgKey });
         }
         // *** END PARSING ***
         setIsLoading(false);
@@ -249,19 +252,19 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
 
       } else if (failureStatuses.includes(currentStatus)) {
         console.error(`Task ${taskId} failed (MusicAPI status: ${currentStatus}). Data:`, taskData);
-        message.error({ content: `Generation failed: ${taskData.detail || currentStatus || 'Unknown error'}`, key: msgKey, duration: 8 });
+        message.error({ content: `Generation failed: ${taskData.detail || currentStatus || 'Unknown error'}`, duration: 8, key: msgKey });
         setIsLoading(false);
         if (pollingTimeoutRef.current) clearTimeout(pollingTimeoutRef.current);
         pollingTimeoutRef.current = null;
       } else {
         console.warn(`Task ${taskId} has unknown MusicAPI status: ${currentStatus}. Treating as processing for now.`);
-        message.info({ content: `Task ${taskId} has an unknown status: ${currentStatus}. Continuing to check...`, key: msgKey, duration: 3 });
+        message.info({ content: `Task ${taskId} has an unknown status: ${currentStatus}. Continuing to check...`, duration: 3, key: msgKey });
         pollingTimeoutRef.current = setTimeout(() => pollTaskStatus(taskId, modelUsed, msgKey), POLLING_INTERVAL);
       }
 
     } catch (error) {
       console.error(`Polling fetch/parse error for task ${taskId}:`, error);
-      message.error({ content: 'Network or parsing error during status check. Check console.', key: msgKey, duration: 5 });
+      message.error({ content: 'Network or parsing error during status check. Check console.', duration: 5, key: msgKey });
       setIsLoading(false);
       if (pollingTimeoutRef.current) clearTimeout(pollingTimeoutRef.current);
       pollingTimeoutRef.current = null;
@@ -296,7 +299,7 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
       model: selectedModel,
       // Include fields needed by the backend based on mode
       ...(isCustomMode
-        ? { title: title, style: styleValue, lyrics: lyricsValue }
+        ? { lyrics: lyricsValue, style: styleValue, title: title }
         : { songDescription: songDescription }),
       // Add other fields if needed, like mv or negative_tags if controlled by frontend
       // mv: 'sonic-v3-5' // Example if frontend were to specify it
@@ -304,12 +307,10 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
 
     // Clean up empty/null values potentially sent
     Object.keys(requestBody).forEach(key => {
-        if (requestBody[key] === null || requestBody[key] === undefined || requestBody[key] === '') {
-            // Keep boolean flags even if false, remove others
-            if (typeof requestBody[key] !== 'boolean') {
+        if ((requestBody[key] === null || requestBody[key] === undefined || requestBody[key] === '') && // Keep boolean flags even if false, remove others
+            typeof requestBody[key] !== 'boolean') {
                  delete requestBody[key];
             }
-        }
     });
 
     console.log('Sending generation request to /api/music/generate:', requestBody);
@@ -320,24 +321,24 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
 
     try {
       const response = await fetch('/api/music/generate', {
-        method: 'POST',
+        body: JSON.stringify(requestBody),
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody),
+        method: 'POST',
       });
 
       const data = await response.json();
 
       if (!response.ok || data.code !== 200) {
         console.error('Generation API error from /api/music/generate:', data);
-        message.error({ content: `Generation failed: ${data.error || data.message || 'Unknown error'}`, key: generationMessageKey, duration: 5 });
+        message.error({ content: `Generation failed: ${data.error || data.message || 'Unknown error'}`, duration: 5, key: generationMessageKey });
         setIsLoading(false);
       } else {
         const taskId = data?.data?.task_id;
         if (taskId) {
           console.log(`Generation started with task_id: ${taskId}`);
-          message.success({ content: `Generation task started (ID: ${taskId}). Checking status...`, key: generationMessageKey, duration: 3 });
+          message.success({ content: `Generation task started (ID: ${taskId}). Checking status...`, duration: 3, key: generationMessageKey });
           pollingAttemptsRef.current = 0;
           const initialPollDelay = 2000;
           setTimeout(() => {
@@ -346,13 +347,13 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
           }, initialPollDelay);
         } else {
            console.error('No task_id received from /api/music/generate:', data);
-           message.error({ content: 'Generation started but failed to get task ID.', key: generationMessageKey, duration: 5 });
+           message.error({ content: 'Generation started but failed to get task ID.', duration: 5, key: generationMessageKey });
            setIsLoading(false);
         }
       }
     } catch (error) {
       console.error('Failed to fetch /api/music/generate:', error);
-      message.error({ content: 'Failed to start generation. Check console for details.', key: generationMessageKey, duration: 5 });
+      message.error({ content: 'Failed to start generation. Check console for details.', duration: 5, key: generationMessageKey });
       setIsLoading(false);
     }
   };
@@ -385,20 +386,20 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
    }, []);
 
   return (
-    <Flexbox gap={16} style={{ padding: 16, height: '100%', overflowY: 'auto' }}>
+    <Flexbox gap={16} style={{ height: '100%', overflowY: 'auto', padding: 16 }}>
       <Title level={4} style={{ margin: 0 }}>AI Music Generation</Title>
 
-      <Flexbox horizontal justify="space-between" align="center">
+      <Flexbox align="center" horizontal justify="space-between">
          <Space>
-           <Switch size="small" checked={isCustomMode} onChange={onIsCustomModeChange} disabled={isLoading} />
+           <Switch checked={isCustomMode} disabled={isLoading} onChange={onIsCustomModeChange} size="small" />
            <Text style={{ color: isCustomMode ? 'white' : 'grey' }}>Custom Mode</Text>
          </Space>
          <Select
-           size="small"
-           value={selectedModel}
-           onChange={setSelectedModel}
            disabled={isLoading}
-           style={{ width: 100, background: 'rgba(0,0,0,0.2)', border: 'none' }}
+           onChange={setSelectedModel}
+           size="small"
+           style={{ background: 'rgba(0,0,0,0.2)', border: 'none', width: 100 }}
+           value={selectedModel}
          >
            <Option value="sonic">Sonic</Option>
            <Option value="studio">Studio</Option>
@@ -407,76 +408,76 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
 
       {!isCustomMode ? (
         <InputGroup title="Song Description">
-          <Paragraph type="secondary" style={{ margin: '0 0 8px 0', fontSize: 12 }}>
+          <Paragraph style={{ fontSize: 12, margin: '0 0 8px 0' }} type="secondary">
             Describe the style of music and the topic you want.
           </Paragraph>
           <TextArea
-            rows={6}
-            placeholder="Enter song description..."
-            value={songDescription}
-            onChange={(e) => onSongDescriptionChange(e.target.value)}
             disabled={isLoading}
             maxLength={400}
+            onChange={(e) => onSongDescriptionChange(e.target.value)}
+            placeholder="Enter song description..."
+            rows={6}
             showCount
+            value={songDescription}
           />
         </InputGroup>
       ) : (
         <Flexbox gap={16}>
           <InputGroup title="Title">
             <Input
-               placeholder="Enter a title"
-               value={title}
-               onChange={(e) => setTitle(e.target.value)}
                disabled={isLoading}
                maxLength={80}
+               onChange={(e) => setTitle(e.target.value)}
+               placeholder="Enter a title"
+               value={title}
             />
           </InputGroup>
 
           <InputGroup title="Style of Music">
              <Input
-               placeholder="Enter style of music"
-               value={styleValue}
-               onChange={(e) => onStyleChange(e.target.value)}
                disabled={isLoading}
                maxLength={120}
+               onChange={(e) => onStyleChange(e.target.value)}
+               placeholder="Enter style of music"
+               value={styleValue}
              />
-             <div style={{ textAlign: 'right', fontSize: 12, color: 'grey' }}>
+             <div style={{ color: 'grey', fontSize: 12, textAlign: 'right' }}>
                {styleValue.length}/120
              </div>
           </InputGroup>
 
           <InputGroup
-             title="Lyrics"
              action={
                 <Space>
                   <Text style={{ color: isInstrumental ? 'white' : 'grey' }}>Instrumental</Text>
-                  <Switch size="small" checked={isInstrumental} onChange={setIsInstrumental} disabled={isLoading} />
+                  <Switch checked={isInstrumental} disabled={isLoading} onChange={setIsInstrumental} size="small" />
                 </Space>
              }
+             title="Lyrics"
            >
-             <Paragraph type="secondary" style={{ margin: '0 0 8px 0', fontSize: 12 }}>
+             <Paragraph style={{ fontSize: 12, margin: '0 0 8px 0' }} type="secondary">
                Write your own lyrics.
              </Paragraph>
             <TextArea
-              rows={6}
-              placeholder="Enter lyrics... (Required unless Instrumental is checked)"
-              value={lyricsValue}
-              onChange={(e) => onLyricsChange(e.target.value)}
               disabled={isLoading || isInstrumental}
               maxLength={2999}
+              onChange={(e) => onLyricsChange(e.target.value)}
+              placeholder="Enter lyrics... (Required unless Instrumental is checked)"
+              rows={6}
               showCount
+              value={lyricsValue}
             />
           </InputGroup>
         </Flexbox>
       )}
 
       <Button
-        type="primary"
-        icon={<Icon icon={Music2} />}
-        onClick={handleGenerate}
-        loading={isLoading}
         block
-        style={{ marginTop: 16, marginBottom: 24 }}
+        icon={<Icon icon={Music2} />}
+        loading={isLoading}
+        onClick={handleGenerate}
+        style={{ marginBottom: 24, marginTop: 16 }}
+        type="primary"
       >
         {isLoading ? 'Generating...' : 'Generate'}
       </Button>
@@ -484,13 +485,13 @@ const GenerationPanel: React.FC<GenerationPanelProps> = ({
       <Flexbox gap={16} style={{ marginTop: 24, width: '100%' }}>
         <Title level={5}>Your gallery</Title>
         <SoundList
-          sounds={userSounds}
           currentPlayingId={currentPlayingId ?? undefined}
-          onPlayPause={onPlayPause}
-          onLikeToggle={onLikeToggle}
           likedSounds={likedSounds}
           listType="user"
           onDelete={handleDeleteSound}
+          onLikeToggle={onLikeToggle}
+          onPlayPause={onPlayPause}
+          sounds={userSounds}
         />
       </Flexbox>
     </Flexbox>

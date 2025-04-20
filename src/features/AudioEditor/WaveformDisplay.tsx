@@ -1,21 +1,21 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useWavesurfer } from '@wavesurfer/react';
-import WaveSurfer from 'wavesurfer.js';
 import { Flexbox } from 'react-layout-kit';
 import { Spin } from 'antd';
 
 interface WaveformDisplayProps {
-  url: string | null;
-  isPlaying: boolean; // Controlled by parent
-  onReady?: () => void;
-  onPlay?: () => void;
+  isPlaying: boolean;
+  onFinish?: () => void; 
+  onLoadedMetadata?: (duration: number) => void;
   onPause?: () => void;
-  onFinish?: () => void;
+  onPlay?: () => void;
+  // Controlled by parent
+  onReady?: () => void;
   onSeek?: (time: number) => void;
   onTimeUpdate?: (time: number) => void;
-  onLoadedMetadata?: (duration: number) => void;
+  url: string | null;
 }
 
 const WaveformDisplay: React.FC<WaveformDisplayProps> = ({
@@ -33,14 +33,19 @@ const WaveformDisplay: React.FC<WaveformDisplayProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const { wavesurfer, isReady, currentTime } = useWavesurfer({
-    container: containerRef,
-    height: 100, // Adjust height as needed
-    waveColor: 'rgb(200, 200, 200)',
-    progressColor: 'rgb(100, 100, 100)',
-    url: url || undefined,
-    barWidth: 2,
     barGap: 1,
-    barRadius: 2,
+    barRadius: 2, 
+    barWidth: 2,
+    
+container: containerRef,
+    
+height: 100,
+    
+progressColor: 'rgb(100, 100, 100)',
+    
+url: url || undefined,
+    // Adjust height as needed
+waveColor: 'rgb(200, 200, 200)',
     // More options: https://wavesurfer.xyz/docs/options
   });
 
@@ -54,13 +59,11 @@ const WaveformDisplay: React.FC<WaveformDisplayProps> = ({
       wavesurfer.play().catch(e => console.error("Wavesurfer play error:", e)); // Add catch for safety
     } 
     // If we should NOT be playing (and wavesurfer exists)
-    else if (!isPlaying) {
-      // Only pause if it's actually playing to avoid unnecessary calls/errors
+    else if (!isPlaying && // Only pause if it's actually playing to avoid unnecessary calls/errors
       // Check if wavesurfer thinks it's playing before pausing
-      if (wavesurfer.isPlaying()) { 
+      wavesurfer.isPlaying()) { 
          wavesurfer.pause();
       }
-    }
     // Depend on isReady as well, so it retries playing when ready, if isPlaying is still true
   }, [isPlaying, wavesurfer, isReady]);
 
@@ -124,11 +127,11 @@ const WaveformDisplay: React.FC<WaveformDisplayProps> = ({
   }, [wavesurfer, onReady, onPlay, onPause, onFinish, onSeek, onTimeUpdate, onLoadedMetadata]);
 
   return (
-    <Flexbox align="center" justify="center" style={{ width: '100%', height: '100%', position: 'relative' }}>
+    <Flexbox align="center" justify="center" style={{ height: '100%', position: 'relative', width: '100%' }}>
       {isLoading && (
         <Spin size="large" style={{ position: 'absolute', zIndex: 10 }} />
       )}
-      <div ref={containerRef} style={{ width: '100%', opacity: isLoading ? 0.5 : 1 }} />
+      <div ref={containerRef} style={{ opacity: isLoading ? 0.5 : 1, width: '100%' }} />
       {/* Optional: Display current time 
       <div style={{ position: 'absolute', bottom: 0, right: 0, background: 'rgba(0,0,0,0.5)', padding: '2px 5px', fontSize: 10 }}>
          {currentTime.toFixed(1)}s

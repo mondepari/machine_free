@@ -1,7 +1,9 @@
-import useSWR, { mutate, SWRConfig, SWRHook } from 'swr';
+import useSWR, { mutate, SWRConfig, type SWRHook, type SWRConfiguration, type SWRResponse } from 'swr';
 
-export type { SWRConfiguration, SWRResponse } from 'swr';
-export { useSWR, mutate, SWRConfig };
+export type { SWRConfiguration, SWRResponse };
+// Removed the re-export of SWRConfig, mutate, and useSWR
+// Only export custom hooks and potentially SWRConfig if needed elsewhere directly
+export { SWRConfig };
 
 /**
  * This type of request method is relatively flexible data, which will be triggered on the first time

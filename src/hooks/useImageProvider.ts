@@ -20,8 +20,8 @@ export const useImageProvider = () => {
     const [_, config] = activeProvider;
 
     return {
-      apiKey: config.apiKey,
       apiEndpoint: config.proxyUrl?.title || '',
+      apiKey: config.apiKey,
       isEnabled: config.enabled,
     };
   };

@@ -1,15 +1,14 @@
-import { FormItemProps } from '@lobehub/ui';
 
 export interface ProviderItem {
-  name: string;
+  apiKey?: string;
   apiKeyItems?: string[];
+  canDeactivate?: boolean;
+  className?: string;
+  enabled?: boolean;
+  name: string;
   proxyUrl?: {
     label: string;
     placeholder: string;
   } | false;
   showApiKey?: boolean;
-  canDeactivate?: boolean;
-  className?: string;
-  enabled?: boolean;
-  apiKey?: string;
 } 

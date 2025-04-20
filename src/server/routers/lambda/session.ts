@@ -3,21 +3,21 @@ import { z } from 'zod';
 import { SessionModel } from '@/database/models/session';
 import { SessionGroupModel } from '@/database/models/sessionGroup';
 import { insertAgentSchema, insertSessionSchema } from '@/database/schemas';
-import { serverDB } from '@/database/server';
+import { getServerDBInstance } from '@/database/server/connection';
 import { authedProcedure, publicProcedure, router } from '@/libs/trpc';
 import { AgentChatConfigSchema } from '@/types/agent';
 import { LobeMetaDataSchema } from '@/types/meta';
 import { BatchTaskResult } from '@/types/service';
 import { ChatSessionList } from '@/types/session';
 import { merge } from '@/utils/merge';
+import { INBOX_SESSION_ID } from '@/const/session';
 
 const sessionProcedure = authedProcedure.use(async (opts) => {
-  const { ctx } = opts;
-
+  const db = await getServerDBInstance();
   return opts.next({
     ctx: {
-      sessionGroupModel: new SessionGroupModel(serverDB, ctx.userId),
-      sessionModel: new SessionModel(serverDB, ctx.userId),
+      sessionGroupModel: new SessionGroupModel(db, opts.ctx.userId),
+      sessionModel: new SessionModel(db, opts.ctx.userId),
     },
   });
 });
@@ -95,23 +95,24 @@ export const sessionRouter = router({
         sessions: [],
       };
 
-    const sessionModel = new SessionModel(serverDB, ctx.userId);
+    const db = await getServerDBInstance();
+    const sessionModel = new SessionModel(db, ctx.userId);
 
     return sessionModel.queryWithGroups();
   }),
 
-  getSessions: sessionProcedure
-    .input(
-      z.object({
-        current: z.number().optional(),
-        pageSize: z.number().optional(),
-      }),
-    )
-    .query(async ({ input, ctx }) => {
-      const { current, pageSize } = input;
+  getSessions: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.userId) return [];
 
-      return ctx.sessionModel.query({ current, pageSize });
-    }),
+    const db = await getServerDBInstance();
+    const sessionModel = new SessionModel(db, ctx.userId);
+
+    const data = {
+      inbox: await sessionModel.findByIdOrSlug(INBOX_SESSION_ID),
+    };
+
+    return sessionModel.queryWithGroups();
+  }),
 
   rankSessions: sessionProcedure.input(z.number().optional()).query(async ({ ctx, input }) => {
     return ctx.sessionModel.rank(input);

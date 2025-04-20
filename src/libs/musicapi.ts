@@ -1,3 +1,5 @@
+/* global HeadersInit, RequestInit */
+
 // src/libs/musicapi.ts
 import { MusicAPIErrorResponse, MusicAPICreateTaskResponse, MusicAPITaskStatusResponse, MusicAPIUploadResponse } from '@/types/musicapi';
 
@@ -37,8 +39,8 @@ const fetchMusicAPI = async <T>(
   };
 
   const options: RequestInit = {
-    method,
     headers,
+    method,
   };
 
   if (method === 'POST' && body) {
@@ -65,7 +67,7 @@ const fetchMusicAPI = async <T>(
           const textBody = await response.text();
           console.error('[fetchMusicAPI] Error Response Body (Text):', textBody);
           errorBody = textBody;
-          detail = textBody.substring(0, 200) || detail; // Limit length of text detail
+          detail = textBody.slice(0, 200) || detail; // Limit length of text detail
         }
       } catch (parseError) {
         console.error('[fetchMusicAPI] Failed to parse error response body:', parseError);

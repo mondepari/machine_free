@@ -1,12 +1,9 @@
 import { nanoid } from 'nanoid';
 import type { StateCreator } from 'zustand/vanilla';
-import { produce } from 'immer';
-import { v4 as uuidv4 } from 'uuid';
-import { create } from 'zustand';
 
 import type { ImagineStore } from './store';
 import { useImagineStore } from './store';
-import { ImagineStoreState, ImagineTask, ImagineSettings } from './initialState';
+import { ImagineTask, ImagineSettings } from './initialState';
 import { ClientService } from '@/services/file/client';
 import { fileEnv } from '@/config/file';
 import { clientS3Storage } from '@/services/file/ClientS3';
@@ -15,11 +12,13 @@ import { useUserStore } from '@/store/user';
 
 // Оставляем только интерфейс с одним простым методом
 export interface ImagineStoreActions {
-  updateSettings: (settings: Partial<ImagineSettings>) => void;
-  setInputPrompt: (prompt: string) => void;
-  generateImage: () => Promise<void>; // Асинхронный экшен
-  viewTaskFromHistory: (taskId: string) => void; // <-- Add action type
+  // <-- Add action type
   deleteTask: (taskId: string) => void;
+  generateImage: () => Promise<void>;
+  setInputPrompt: (prompt: string) => void; 
+  updateSettings: (settings: Partial<ImagineSettings>) => void; 
+  // Асинхронный экшен
+  viewTaskFromHistory: (taskId: string) => void;
   // Другие экшены по необходимости (например, для истории)
 }
 
@@ -30,16 +29,20 @@ export const imagineActionSlice: StateCreator<
   [],
   ImagineStoreActions
 > = (set, get) => ({
-  updateSettings: (settings) => {
+  deleteTask: (taskId) => {
     set(
-      (state: ImagineStore) => ({ settings: { ...state.settings, ...settings } }),
+      (state) => {
+        const newTasks = { ...state.tasks };
+        delete newTasks[taskId];
+        return {
+          history: state.history.filter(id => id !== taskId),
+          tasks: newTasks,
+          viewedTaskId: state.viewedTaskId === taskId ? undefined : state.viewedTaskId,
+        };
+      },
       false,
-      'updateSettings',
+      'deleteTask',
     );
-  },
-
-  setInputPrompt: (prompt) => {
-    set({ inputPrompt: prompt }, false, 'setInputPrompt');
   },
 
   generateImage: async () => {
@@ -53,18 +56,18 @@ export const imagineActionSlice: StateCreator<
 
     const taskId = nanoid();
     const newTask: ImagineTask = {
+      createdAt: Date.now(),
       id: taskId,
+      imageUrls: [],
       prompt: inputPrompt,
       status: 'pending',
-      createdAt: Date.now(),
-      imageUrls: [],
     };
 
     set(
       (state) => ({
-        tasks: { ...state.tasks, [taskId]: newTask },
         currentTaskId: taskId,
         history: [taskId, ...state.history.filter(id => id !== taskId)],
+        tasks: { ...state.tasks, [taskId]: newTask },
       }),
       false,
       'generateImage/pending',
@@ -103,19 +106,24 @@ export const imagineActionSlice: StateCreator<
 
         // Create an array of unique seeds for each image
         const seeds = Array.from({ length: numImages }, (_, i) => 
-          Math.floor(Math.random() * 1000000) + i * 1000000
+          Math.floor(Math.random() * 1_000_000) + i * 1_000_000
         );
 
         // Create separate requests for each image with different seeds
         const imagePromises = seeds.map(async (seed) => {
           const payload = {
             model: selectedModel,
-            prompt: inputPrompt,
-            n: 1, // Generate one image per request
-            size: resolution,
+            n: 1,
+            prompt: inputPrompt, 
+            // Add unique seed
+response_format: 'url',
+            
+
+seed: seed,
+            
+// Generate one image per request
+size: resolution, 
             style: style,
-            seed: seed, // Add unique seed
-            response_format: 'url',
           };
 
           console.log('Generating image with payload:', {
@@ -125,12 +133,12 @@ export const imagineActionSlice: StateCreator<
           });
 
           const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`,
-            },
             body: JSON.stringify(payload),
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            method: 'POST',
           });
 
           if (!response.ok) {
@@ -138,7 +146,7 @@ export const imagineActionSlice: StateCreator<
             try {
               const errorData = await response.json();
               errorDetails = errorData.detail || errorData.message || JSON.stringify(errorData);
-            } catch (e) { /* Ignore parsing error */ }
+            } catch { /* Ignore parsing error */ }
             throw new Error(errorDetails);
           }
 
@@ -198,7 +206,7 @@ export const imagineActionSlice: StateCreator<
           console.warn(`API returned fewer images than requested (got ${imageUrls.length}, wanted ${numImages})`);
           // Duplicate the last image to meet the requested count if necessary
           while (imageUrls.length < numImages) {
-            imageUrls.push(imageUrls[imageUrls.length - 1]);
+            imageUrls.push(imageUrls.at(-1));
           }
         } else if (imageUrls.length > numImages) {
           console.warn(`API returned more images than requested, truncating to ${numImages}`);
@@ -218,7 +226,7 @@ export const imagineActionSlice: StateCreator<
         (state) => ({
           tasks: {
             ...state.tasks,
-            [taskId]: { ...state.tasks[taskId], status: 'success', imageUrls: savedImageUrls },
+            [taskId]: { ...state.tasks[taskId], imageUrls: savedImageUrls, status: 'success' },
           },
         }),
         false,
@@ -230,7 +238,7 @@ export const imagineActionSlice: StateCreator<
         (state) => ({
           tasks: {
             ...state.tasks,
-            [taskId]: { ...state.tasks[taskId], status: 'error', error: { message: error.message || 'Unknown error' }, imageUrls: [] },
+            [taskId]: { ...state.tasks[taskId], error: { message: error.message || 'Unknown error' }, imageUrls: [], status: 'error' },
           },
         }),
         false,
@@ -239,24 +247,20 @@ export const imagineActionSlice: StateCreator<
     }
   },
 
-  viewTaskFromHistory: (taskId) => { // <-- Add action implementation
-    set({ viewedTaskId: taskId }, false, 'viewTaskFromHistory');
+  setInputPrompt: (prompt) => {
+    set({ inputPrompt: prompt }, false, 'setInputPrompt');
   },
 
-  deleteTask: (taskId) => {
+  updateSettings: (settings) => {
     set(
-      (state) => {
-        const newTasks = { ...state.tasks };
-        delete newTasks[taskId];
-        return {
-          tasks: newTasks,
-          viewedTaskId: state.viewedTaskId === taskId ? undefined : state.viewedTaskId,
-          history: state.history.filter(id => id !== taskId),
-        };
-      },
+      (state: ImagineStore) => ({ settings: { ...state.settings, ...settings } }),
       false,
-      'deleteTask',
+      'updateSettings',
     );
+  },
+
+  viewTaskFromHistory: (taskId) => { // <-- Add action implementation
+    set({ viewedTaskId: taskId }, false, 'viewTaskFromHistory');
   },
 });
 
@@ -290,17 +294,17 @@ const saveImageToStorage = async (imageUrl: string, prompt: string, index: numbe
     const fileData = {
       fileHash,
       fileType: 'image/png',
-      name: file.name,
-      size: file.size,
-      url: `client-s3://${fileHash}`,
       metadata: {
-        prompt,
         generated: true,
         index,
         model: settings.selectedModel,
+        prompt,
         resolution: settings.resolution,
         style: settings.style
-      }
+      },
+      name: file.name,
+      size: file.size,
+      url: `client-s3://${fileHash}`
     };
 
     // Save to local storage if no S3 configured

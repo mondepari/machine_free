@@ -7,14 +7,14 @@ import { SessionDefaultGroup } from '@/types/session';
 import { AsyncLocalStorage } from '@/utils/localStorage';
 
 export enum SidebarTabKey {
+  Audio = 'audio',
   Chat = 'chat',
   Discover = 'discover',
   Files = 'files',
-  Me = 'me',
-  Setting = 'settings',
-  Market = 'market',
   Imagine = 'imagine',
-  Audio = 'audio',
+  Market = 'market',
+  Me = 'me',
+  Setting = 'settings'
 }
 
 export enum ChatSettingsTabs {

@@ -1,12 +1,12 @@
-import { subscribeWithSelector } from 'zustand/middleware';
+import { subscribeWithSelector , persist, PersistOptions } from 'zustand/middleware';
 import { shallow } from 'zustand/shallow';
 import { createWithEqualityFn } from 'zustand/traditional';
 import { StateCreator } from 'zustand/vanilla';
-import { persist, PersistOptions } from 'zustand/middleware';
+
 
 import { createDevtools } from '../middleware/createDevtools';
 import { type UserState, initialState } from './initialState';
-import { type UserAuthAction, createAuthSlice } from './slices/auth/action';
+import { createAuthSlice } from './slices/auth/action';
 import { type CommonAction, createCommonSlice } from './slices/common/action';
 import { type ImageProviderAction, createImageProviderSlice } from './slices/imageProvider/action';
 import { type ModelListAction, createModelListSlice } from './slices/modelList/action';
@@ -52,9 +52,11 @@ const persistOptions: PersistOptions<UserStore, UserStorageSyncState> = {
   // Define which parts of the state to persist
   partialize: (state) =>
     ({
-      preference: state.preference,
-      settings: state.settings, // Ensure settings object is persisted
-      modelProviderList: state.modelProviderList,
+      // Ensure settings object is persisted
+modelProviderList: state.modelProviderList,
+      
+preference: state.preference, 
+      settings: state.settings,
     }) as UserStorageSyncState,
 
   // version: 1, // uncomment and increment if you change the storage structure

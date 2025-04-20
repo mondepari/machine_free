@@ -8,9 +8,9 @@ import { useVideoProviderStore, type VideoProviderStore } from '@/store/videoPro
 const VideoDisplay = () => {
   const { isLoading, videoUrl, error } = useVideoProviderStore(
     (s: VideoProviderStore) => ({
+      error: s.error,
       isLoading: s.isLoading,
       videoUrl: s.videoUrl,
-      error: s.error,
     })
   );
 
@@ -20,12 +20,12 @@ const VideoDisplay = () => {
     }
 
     if (error) {
-      return <Alert message="Error Generating Video" description={String(error)} type="error" showIcon />;
+      return <Alert description={String(error)} message="Error Generating Video" showIcon type="error" />;
     }
 
     if (videoUrl) {
       return (
-        <video controls src={videoUrl} style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: '8px' }}>
+        <video controls src={videoUrl} style={{ borderRadius: '8px', maxHeight: '100%', maxWidth: '100%' }}>
           Your browser does not support the video tag.
         </video>
       );
@@ -35,7 +35,7 @@ const VideoDisplay = () => {
   };
 
   return (
-    <Flexbox align="center" justify="center" height="100%" width="100%">
+    <Flexbox align="center" height="100%" justify="center" width="100%">
       {renderContent()}
     </Flexbox>
   );

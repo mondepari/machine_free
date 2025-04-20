@@ -1,6 +1,7 @@
 'use client';
 
-import { memo } from 'react';
+import React, { memo } from 'react';
+
 import { Flexbox } from 'react-layout-kit';
 import { createStyles } from 'antd-style';
 import { List, Typography, Image, Popconfirm } from 'antd';
@@ -14,10 +15,21 @@ import { ImagineTask } from '@/store/imagine/initialState';
 const { Text } = Typography;
 
 const useStyles = createStyles(({ css, token }) => ({
+  actions: css`
+    opacity: 0;
+    transition: opacity 0.2s;
+
+    .ant-list-item:hover & {
+      opacity: 1;
+    }
+  `,
   container: css`
     padding: 8px;
     height: 100%;
     overflow-y: auto;
+  `,
+  image: css`
+    border-radius: ${token.borderRadiusSM}px;
   `,
   listItem: css`
     cursor: pointer;
@@ -26,17 +38,6 @@ const useStyles = createStyles(({ css, token }) => ({
 
     &:hover {
       background-color: ${token.colorBgTextHover};
-    }
-  `,
-  image: css`
-    border-radius: ${token.borderRadiusSM}px;
-  `,
-  actions: css`
-    opacity: 0;
-    transition: opacity 0.2s;
-
-    .ant-list-item:hover & {
-      opacity: 1;
     }
   `,
 }));
@@ -66,9 +67,9 @@ const HistoryPanel = memo(() => {
         locale={{ emptyText: 'История генераций пуста' /* TODO: Localization */ }}
         renderItem={(item) => (
           <List.Item className={styles.listItem} onClick={() => handleItemClick(item)}>
-            <Flexbox horizontal gap={8} align="center" width="100%">
+            <Flexbox align="center" gap={8} horizontal width="100%">
               <Image
-                alt={item.prompt.substring(0, 30)} // Shortened prompt as alt
+                alt={item.prompt.slice(0, 30)} // Shortened prompt as alt
                 className={styles.image}
                 height={40}
                 preview={false} // Disable preview for the small thumb
@@ -80,17 +81,17 @@ const HistoryPanel = memo(() => {
                 <Text ellipsis={{ tooltip: item.prompt }}>
                   {item.prompt}
                 </Text>
-                <Text type="secondary" style={{ fontSize: 'small' }}>
+                <Text style={{ fontSize: 'small' }} type="secondary">
                   {item.status} - {new Date(item.createdAt).toLocaleString()}
                 </Text>
               </Flexbox>
               <Popconfirm
-                title="Delete this generation?"
-                description="Are you sure you want to delete this generation?"
-                onConfirm={(e) => handleDelete(e as any, item.id)}
-                okText="Yes"
                 cancelText="No"
+                description="Are you sure you want to delete this generation?"
+                okText="Yes"
                 onClick={(e) => e.stopPropagation()}
+                onConfirm={(e) => handleDelete(e as any, item.id)}
+                title="Delete this generation?"
               >
                 <ActionIcon
                   className={styles.actions}

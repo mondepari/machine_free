@@ -1,10 +1,10 @@
 import { produce } from 'immer';
-import { SWRResponse, useSWR } from '@/libs/swr';
+import useSWR, { type SWRResponse } from 'swr';
+import { UserStore } from '@/store/user';
 import type { StateCreator } from 'zustand/vanilla';
 
 import { DEFAULT_MODEL_PROVIDER_LIST } from '@/config/modelProviders';
 import { ModelProvider } from '@/libs/agent-runtime';
-import { UserStore } from '@/store/user';
 import type { ChatModelCard, ModelProviderCard } from '@/types/llm';
 import type {
   GlobalLLMProviderKey,

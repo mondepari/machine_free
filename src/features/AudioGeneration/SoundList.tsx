@@ -1,4 +1,3 @@
-import { Typography } from 'antd';
 import React from 'react';
 import { Flexbox } from 'react-layout-kit';
 import SoundItem, { SoundItemData } from './SoundItem';
@@ -7,15 +6,15 @@ import SoundItem, { SoundItemData } from './SoundItem';
 // const { Title } = Typography; 
 
 interface SoundListProps {
-  // title: string; // Removed prop
-  sounds: SoundItemData[];
   currentPlayingId?: string;
-  onPlayPause: (id: string, audioSrc: string) => void;
-  onLikeToggle: (id: string) => void;
-  onUsePrompt?: (id: string) => void;
   likedSounds: Record<string, boolean>;
   listType: 'reference' | 'user';
   onDelete?: (id: string) => void;
+  onLikeToggle: (id: string) => void;
+  onPlayPause: (id: string, audioSrc: string) => void;
+  onUsePrompt?: (id: string) => void;
+  // title: string; // Removed prop
+  sounds: SoundItemData[];
 }
 
 const SoundList: React.FC<SoundListProps> = ({
@@ -31,7 +30,7 @@ const SoundList: React.FC<SoundListProps> = ({
 }) => {
   if (!sounds || sounds.length === 0) {
     // Optionally display a more specific message based on listType?
-    return <Flexbox style={{ padding: '16px 0', color: 'grey' }}>No sounds in this list.</Flexbox>;
+    return <Flexbox style={{ color: 'grey', padding: '16px 0' }}>No sounds in this list.</Flexbox>;
   }
 
   return (
@@ -40,19 +39,19 @@ const SoundList: React.FC<SoundListProps> = ({
       {/* <Title level={5} style={{ margin: '0 0 8px 0' }}>{title}</Title> */}
       {sounds.map((item) => (
         <SoundItem
-          key={item.id}
-          id={item.id}
-          title={item.title}
           audioUrl={item.audioUrl}
-          imageUrl={item.imageUrl}
           duration={item.duration}
-          tags={item.tags}
-          isPlaying={item.id === currentPlayingId}
+          id={item.id}
+          imageUrl={item.imageUrl}
           isLiked={!!likedSounds[item.id]}
-          onPlayPause={onPlayPause}
-          onLikeToggle={onLikeToggle}
-          onUsePrompt={onUsePrompt}
+          isPlaying={item.id === currentPlayingId}
+          key={item.id}
           listType={listType}
+          onLikeToggle={onLikeToggle}
+          onPlayPause={onPlayPause}
+          onUsePrompt={onUsePrompt}
+          tags={item.tags}
+          title={item.title}
           onDelete={onDelete}
           // TODO: Pass onDelete handler for user list if needed
         />

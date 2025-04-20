@@ -1,6 +1,6 @@
 import * as lobeUIModules from '@lobehub/ui';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { mutate } from '@/libs/swr';
+import { mutate } from 'swr';
 import { Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TraceEventType } from '@/const/trace';

@@ -7,22 +7,35 @@ import { FileModel } from '@/database/models/file';
 import { KnowledgeBaseModel } from '@/database/models/knowledgeBase';
 import { SessionModel } from '@/database/models/session';
 import { UserModel } from '@/database/models/user';
-import { serverDB } from '@/database/server';
+import { getServerDBInstance } from '@/database/server/connection';
 import { pino } from '@/libs/logger';
 import { authedProcedure, router } from '@/libs/trpc';
 import { AgentService } from '@/server/services/agent';
 import { KnowledgeItem, KnowledgeType } from '@/types/knowledgeBase';
+import { keyVaults } from '@/libs/trpc/middleware/keyVaults';
+import { checkAuth } from '@/libs/trpc/middleware/auth';
+import { LobeChatDatabase } from '@/database/type';
 
-const agentProcedure = authedProcedure.use(async (opts) => {
-  const { ctx } = opts;
-
+// Middleware to add db to context
+const dbMiddleware = authedProcedure.use(async (opts) => {
+  const db = await getServerDBInstance();
   return opts.next({
     ctx: {
-      agentModel: new AgentModel(serverDB, ctx.userId),
-      agentService: new AgentService(serverDB, ctx.userId),
-      fileModel: new FileModel(serverDB, ctx.userId),
-      knowledgeBaseModel: new KnowledgeBaseModel(serverDB, ctx.userId),
-      sessionModel: new SessionModel(serverDB, ctx.userId),
+      ...opts.ctx, // Preserve existing context
+      db: db as LobeChatDatabase, // Add db to context
+    },
+  });
+});
+
+// Apply middleware with db and keyVaults, then add models
+const agentProcedure = dbMiddleware.use(keyVaults).use(checkAuth).use(async (opts) => {
+  // opts.ctx now includes db
+  return opts.next({
+    ctx: {
+      ...opts.ctx,
+      agentModel: new AgentModel(opts.ctx.db, opts.ctx.userId),
+      sessionModel: new SessionModel(opts.ctx.db, opts.ctx.userId),
+      userModel: new UserModel(opts.ctx.db, opts.ctx.userId),
     },
   });
 });
@@ -90,7 +103,8 @@ export const agentRouter = router({
         // if there is no session for user, create one
         if (!item) {
           // if there is no user, return default config
-          const user = await UserModel.findById(serverDB, ctx.userId);
+          const db = await getServerDBInstance();
+          const user = await UserModel.findById(db, ctx.userId);
           if (!user) return DEFAULT_AGENT_CONFIG;
 
           const res = await ctx.agentService.createInbox();
@@ -170,4 +184,11 @@ export const agentRouter = router({
         input.enabled,
       );
     }),
+
+  getDefaultAgentConfig: agentProcedure.query(async ({ ctx }) => {
+    // ... existing logic ...
+    // Use ctx.db here if needed, e.g. for UserModel.findById
+    const user = await UserModel.findById(ctx.db, ctx.userId);
+    // ... rest of logic ...
+  }),
 });

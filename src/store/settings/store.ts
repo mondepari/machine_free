@@ -6,18 +6,18 @@ import { StateCreator } from 'zustand/vanilla';
 import { createDevtools } from '../middleware/createDevtools';
 
 interface ImageProviderSettings {
-  enabled: boolean;
   apiKey?: string;
+  enabled: boolean;
   proxyUrl?: {
-    title?: string;
     desc?: string;
     placeholder: string;
+    title?: string;
   };
 }
 
 interface ImageProviders {
-  default: ImageProviderSettings;
   custom: ImageProviderSettings;
+  default: ImageProviderSettings;
 }
 
 export interface SettingsState {
@@ -33,22 +33,22 @@ export interface SettingsActions {
 
 const initialState: SettingsState = {
   imageProviders: {
-    default: {
-      enabled: false,
-      apiKey: '',
-      proxyUrl: {
-        title: '',
-        desc: '',
-        placeholder: 'https://api.example.com/v1',
-      },
-    },
     custom: {
-      enabled: false,
       apiKey: '',
+      enabled: false,
       proxyUrl: {
-        title: '',
         desc: '',
         placeholder: 'https://api.custom.com/v1',
+        title: '',
+      },
+    },
+    default: {
+      apiKey: '',
+      enabled: false,
+      proxyUrl: {
+        desc: '',
+        placeholder: 'https://api.example.com/v1',
+        title: '',
       },
     },
   },

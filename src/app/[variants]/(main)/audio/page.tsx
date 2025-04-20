@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Flexbox, FlexDirection } from 'react-layout-kit';
-import { memo } from 'react';
+import React, { useState,  memo } from 'react';
+import { Flexbox } from 'react-layout-kit';
 import { useTranslation } from 'react-i18next';
-import { message, Button, Space, Typography, Slider, Modal } from 'antd';
+import { message, Button, Space, Typography, Modal } from 'antd';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { GenerationPanel } from '@/features/AudioGeneration';
 import SoundList from '@/features/AudioGeneration/SoundList';
@@ -25,14 +24,20 @@ const { Text } = Typography;
 
 // Style for the resize handle
 const resizeHandleStyle: React.CSSProperties = {
-  width: '8px', // Make the handle area wider for easier grabbing
-  background: '#555', // A visible color for the handle
-  cursor: 'col-resize',
+  
+alignItems: 'center', 
+  
+// Make the handle area wider for easier grabbing
+background: '#555', 
+  
+borderLeft: '1px solid #444',
+  
+borderRight: '1px solid #444',
+  // A visible color for the handle
+cursor: 'col-resize',
   display: 'flex',
-  alignItems: 'center',
   justifyContent: 'center',
-  borderLeft: '1px solid #444',
-  borderRight: '1px solid #444',
+  width: '8px',
 };
 
 const Audio = memo(() => {
@@ -165,20 +170,20 @@ const Audio = memo(() => {
   return (
     <>
       <PanelGroup direction="horizontal" style={{ height: '100%' }}>
-        <Panel defaultSize={30} minSize={25} maxSize={50} id="generation-panel">
+        <Panel defaultSize={30} id="generation-panel" maxSize={50} minSize={25}>
           <GenerationPanel
              currentPlayingId={currentPlayingId}
-             likedSounds={likedSounds}
-             onPlayPause={handlePlayPause}
-             onLikeToggle={handleLikeToggle}
-             songDescription={songDescription}
              isCustomMode={isCustomMode}
-             onSongDescriptionChange={setSongDescription}
-             onIsCustomModeChange={setIsCustomMode}
-             styleValue={style}
-             onStyleChange={setStyle}
+             likedSounds={likedSounds}
              lyricsValue={lyrics}
+             onIsCustomModeChange={setIsCustomMode}
+             onLikeToggle={handleLikeToggle}
              onLyricsChange={setLyrics}
+             onPlayPause={handlePlayPause}
+             onSongDescriptionChange={setSongDescription}
+             onStyleChange={setStyle}
+             songDescription={songDescription}
+             styleValue={style}
           />
         </Panel>
         
@@ -188,28 +193,28 @@ const Audio = memo(() => {
           {/* @ts-ignore */}
           <Flexbox direction={'column'} style={{ height: '100%' }}>
             <Flexbox 
-              justify="space-between" 
-              align="center"
-              style={{ padding: 16, borderBottom: '1px solid #333', minHeight: '80px' }}
+              align="center" 
+              justify="space-between"
+              style={{ borderBottom: '1px solid #333', minHeight: '80px', padding: 16 }}
             >
-              <Flexbox flex={1} style={{ width: '100%', minHeight: 60, marginRight: 16 }}>
+              <Flexbox flex={1} style={{ marginRight: 16, minHeight: 60, width: '100%' }}>
                   <WaveformDisplay 
-                     url={currentAudioSrc} 
-                     isPlaying={isPlaying}
+                     isPlaying={isPlaying} 
+                     onFinish={handleAudioFinish}
+                     onLoadedMetadata={handleLoadedMetadata}
                      onSeek={handleSeekEnd}
                      onTimeUpdate={handleTimeUpdate}
-                     onLoadedMetadata={handleLoadedMetadata}
-                     onFinish={handleAudioFinish}
+                     url={currentAudioSrc}
                   />
               </Flexbox>
               
               <Flexbox align="center" gap={16} style={{ flexShrink: 0 }}>
                   {/* @ts-ignore */}
-                  <Flexbox flex={1} direction={'column'} align="center" style={{ minWidth: 100, textAlign: 'center' }}>
-                    <Text strong style={{ color: 'white'}} ellipsis>
+                  <Flexbox align="center" direction={'column'} flex={1} style={{ minWidth: 100, textAlign: 'center' }}>
+                    <Text ellipsis strong style={{ color: 'white'}}>
                       {playingSoundInfo ? playingSoundInfo.title : 'Nothing Playing'}
                     </Text>
-                    <Text type="secondary" style={{ fontSize: 12, whiteSpace: 'nowrap' }}>
+                    <Text style={{ fontSize: 12, whiteSpace: 'nowrap' }} type="secondary">
                        {formatDuration(currentTime)} / {formatDuration(duration)}
                     </Text>
                   </Flexbox>
@@ -217,51 +222,51 @@ const Audio = memo(() => {
                   {/* Playback Controls & Favorites Wrapper - Centered */}
                   <Flexbox flex={1} justify="center"> 
                     <Space size="large" style={{ justifyContent: 'center' }}> 
-                        <Button type="text" shape="circle" icon={<FastBackwardFilled style={{ fontSize: 28 }} />} disabled /> 
+                        <Button disabled icon={<FastBackwardFilled style={{ fontSize: 28 }} />} shape="circle" type="text" /> 
                         <Button 
-                            type="text" 
-                            shape="circle" 
-                            icon={isPlaying ? <PauseCircleFilled style={{ fontSize: 36 }} /> : <PlayCircleFilled style={{ fontSize: 36 }} />}
-                            onClick={handleMainPlayPauseClick}
                             disabled={!currentAudioSrc} 
-                            size="large"
+                            icon={isPlaying ? <PauseCircleFilled style={{ fontSize: 36 }} /> : <PlayCircleFilled style={{ fontSize: 36 }} />} 
+                            onClick={handleMainPlayPauseClick}
+                            shape="circle"
+                            size="large" 
+                            type="text"
                         />
-                        <Button type="text" shape="circle" icon={<FastForwardFilled style={{ fontSize: 28 }} />} disabled /> 
+                        <Button disabled icon={<FastForwardFilled style={{ fontSize: 28 }} />} shape="circle" type="text" /> 
                         <Button 
-                          type="text" 
-                          shape="circle" 
-                          icon={<HeartOutlined style={{ fontSize: 20 }} />}
+                          icon={<HeartOutlined style={{ fontSize: 20 }} />} 
                           onClick={handleShowFavorites} 
+                          shape="circle"
+                          style={{ color: 'white'}} 
                           title="Show Favorites"
-                          style={{ color: 'white'}}
+                          type="text"
                         />
                     </Space>
                   </Flexbox>
               </Flexbox>
             </Flexbox>
 
-            <Flexbox flex={1} horizontal gap={16} style={{ padding: 16, overflow: 'hidden' }}> 
-              <Flexbox flex={1} gap={8} style={{ minWidth: 0, height: '100%', overflowY: 'auto' }}> 
+            <Flexbox flex={1} gap={16} horizontal style={{ overflow: 'hidden', padding: 16 }}> 
+              <Flexbox flex={1} gap={8} style={{ height: '100%', minWidth: 0, overflowY: 'auto' }}> 
                 <Title level={5} style={{ margin: 0, paddingBottom: 8 }}>AI Reference</Title>
                 <SoundList
-                  sounds={currentAiReferenceSounds} 
-                  currentPlayingId={currentPlayingId ?? undefined}
-                  onPlayPause={handlePlayPause}
-                  onLikeToggle={handleLikeToggle}
+                  currentPlayingId={currentPlayingId ?? undefined} 
                   likedSounds={likedSounds}
                   listType="reference"
+                  onLikeToggle={handleLikeToggle}
+                  onPlayPause={handlePlayPause}
                   onUsePrompt={handleUseReferencePrompt}
+                  sounds={currentAiReferenceSounds}
                 />
               </Flexbox>
-              <Flexbox flex={1} gap={8} style={{ minWidth: 0, height: '100%', overflowY: 'auto' }}> 
+              <Flexbox flex={1} gap={8} style={{ height: '100%', minWidth: 0, overflowY: 'auto' }}> 
                 <Title level={5} style={{ margin: 0, paddingBottom: 8 }}>Trending</Title>
                 <SoundList
-                  sounds={currentTrendingSounds} 
-                  currentPlayingId={currentPlayingId ?? undefined}
-                  onPlayPause={handlePlayPause}
-                  onLikeToggle={handleLikeToggle}
+                  currentPlayingId={currentPlayingId ?? undefined} 
                   likedSounds={likedSounds}
-                  listType="reference" 
+                  listType="reference"
+                  onLikeToggle={handleLikeToggle}
+                  onPlayPause={handlePlayPause}
+                  sounds={currentTrendingSounds} 
                 />
               </Flexbox>
             </Flexbox>
@@ -271,20 +276,20 @@ const Audio = memo(() => {
 
       {/* Favorites Modal */}
       <Modal 
-        title="Favorite Sounds" 
-        open={isFavoritesModalVisible} 
+        footer={null} // No default buttons 
         onCancel={() => setIsFavoritesModalVisible(false)} 
-        footer={null} // No default buttons
-        width={600} // Adjust width as needed
+        open={isFavoritesModalVisible} 
         styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }} // Make body scrollable
+        title="Favorite Sounds"
+        width={600} // Adjust width as needed
       >
         {favoriteSounds.length > 0 ? (
           <SoundList
-            sounds={favoriteSounds}
             currentPlayingId={currentPlayingId ?? undefined}
-            onPlayPause={handlePlayPause}
-            onLikeToggle={handleLikeToggle}
             likedSounds={likedSounds}
+            onLikeToggle={handleLikeToggle}
+            onPlayPause={handlePlayPause}
+            sounds={favoriteSounds}
             listType="reference" // Or create a new type if needed
             // Add onDelete or onUsePrompt if applicable to favorites view
           />

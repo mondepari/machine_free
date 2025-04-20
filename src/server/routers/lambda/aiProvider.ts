@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { AiProviderModel } from '@/database/models/aiProvider';
 import { UserModel } from '@/database/models/user';
 import { AiInfraRepos } from '@/database/repositories/aiInfra';
-import { serverDB } from '@/database/server';
+import { getServerDBInstance } from '@/database/server/connection';
 import { authedProcedure, router } from '@/libs/trpc';
 import { getServerGlobalConfig } from '@/server/globalConfig';
 import { KeyVaultsGateKeeper } from '@/server/modules/KeyVaultsEncrypt';
@@ -17,21 +17,22 @@ import {
 import { ProviderConfig } from '@/types/user/settings';
 
 const aiProviderProcedure = authedProcedure.use(async (opts) => {
-  const { ctx } = opts;
-
-  const { aiProvider } = await getServerGlobalConfig();
+  const db = await getServerDBInstance();
 
   const gateKeeper = await KeyVaultsGateKeeper.initWithEnvKey();
+  const { aiProvider } = await getServerGlobalConfig();
+
   return opts.next({
     ctx: {
       aiInfraRepos: new AiInfraRepos(
-        serverDB,
-        ctx.userId,
+        db,
+        opts.ctx.userId,
         aiProvider as Record<string, ProviderConfig>,
       ),
-      aiProviderModel: new AiProviderModel(serverDB, ctx.userId),
+      aiProviderModel: new AiProviderModel(db, opts.ctx.userId),
+      db,
       gateKeeper,
-      userModel: new UserModel(serverDB, ctx.userId),
+      userModel: new UserModel(db, opts.ctx.userId),
     },
   });
 });
@@ -47,7 +48,6 @@ export const aiProviderRouter = router({
 
   getAiProviderById: aiProviderProcedure
     .input(z.object({ id: z.string() }))
-
     .query(async ({ input, ctx }): Promise<AiProviderDetailItem | undefined> => {
       return ctx.aiInfraRepos.getAiProviderDetail(input.id, KeyVaultsGateKeeper.getUserKeyVaults);
     }),

@@ -10,7 +10,7 @@ import RepoIcon from '@/components/RepoIcon';
 const Head = memo<{ name?: string }>(({ name }) => {
   return (
     <Flexbox gap={8}>
-      <GoBack href={'/files'} />
+      <GoBack href={'/repos'} />
       <Flexbox align={'center'} gap={8} height={36} horizontal>
         <Center style={{ minWidth: 24 }} width={24}>
           <RepoIcon />

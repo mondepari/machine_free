@@ -36,8 +36,8 @@ const TopActions = memo<TopActionProps>(({ tab, isPinned }) => {
     <>
       {/* Chat Button */}
       <Link
-        href={'/chat'}
         aria-label={t('tab.chat')}
+        href={'/chat'}
         passHref
       >
         <ActionIcon
@@ -52,8 +52,8 @@ const TopActions = memo<TopActionProps>(({ tab, isPinned }) => {
 
       {/* Discover Button */}
       <Link
-        href={'/discover'}
         aria-label={t('tab.discover')}
+        href={'/discover'}
         passHref
       >
         <ActionIcon
@@ -68,8 +68,8 @@ const TopActions = memo<TopActionProps>(({ tab, isPinned }) => {
 
       {/* Audio Button */}
       <Link
-        href={'/audio'}
         aria-label={'Audio Generation'} // Placeholder
+        href={'/audio'}
         passHref
       >
         <ActionIcon
@@ -85,8 +85,8 @@ const TopActions = memo<TopActionProps>(({ tab, isPinned }) => {
       {/* Imagine Button (Conditional) */}
       {showDalle && (
         <Link
-          href={'/imagine'}
           aria-label={'Imagine'} // Placeholder
+          href={'/imagine'}
           passHref
         >
           <ActionIcon
@@ -102,8 +102,8 @@ const TopActions = memo<TopActionProps>(({ tab, isPinned }) => {
 
       {/* Files Button */}
       <Link
-        href={'/files'}
         aria-label={'Files'} // Placeholder
+        href={'/files'}
         passHref
       >
         <ActionIcon

@@ -5,33 +5,33 @@ export type * from '@/locales/resources';
 export type LocaleMode = Locales | 'auto';
 
 export interface LocaleSettingTranslation {
-  tab: {
-    common: string;
-    agent: string;
-    sync: string;
-    llm: string;
-    tts: string;
-    system: string;
-    about: string;
-    imagine: string;
-  };
   imageProvider: {
-    title: string;
-    desc: string;
-    enabled: string;
     apiKey: {
-      title: string;
       desc: string;
       placeholder: string;
-    };
-    proxyUrl: {
       title: string;
-      desc: string;
-      placeholder: string;
     };
     checker: {
-      title: string;
       desc: string;
+      title: string;
     };
+    desc: string;
+    enabled: string;
+    proxyUrl: {
+      desc: string;
+      placeholder: string;
+      title: string;
+    };
+    title: string;
+  };
+  tab: {
+    about: string;
+    agent: string;
+    common: string;
+    imagine: string;
+    llm: string;
+    sync: string;
+    system: string;
+    tts: string;
   };
 }

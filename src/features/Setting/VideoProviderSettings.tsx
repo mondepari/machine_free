@@ -33,21 +33,21 @@ const VideoProviderSettings = memo(() => {
       <p>Configure your video generation provider API key and endpoint.</p>
       <Form
         form={form}
-        layout="vertical"
         initialValues={videoSettings || {}} // Set initialValues from store state (or empty if undefined)
+        layout="vertical"
         onValuesChange={handleValuesChange}
       >
         <Form.Item
           label="API Key"
-          tooltip="Enter your API Key for the video provider."
           name="videoApiKey"
+          tooltip="Enter your API Key for the video provider."
         >
           <Input.Password placeholder="sk-... or other API Key format" />
         </Form.Item>
         <Form.Item
           label="Endpoint URL"
-          tooltip="Enter the API endpoint URL for video generation."
           name="videoEndpoint"
+          tooltip="Enter the API endpoint URL for video generation."
         >
           <Input placeholder="https://your-provider.com/api/v1/videos" />
         </Form.Item>

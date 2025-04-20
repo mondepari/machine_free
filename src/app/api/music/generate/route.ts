@@ -37,10 +37,16 @@ export async function POST(req: Request) {
 
   // --- Construct FLAT API Request Body ---
   let apiRequestBody: Record<string, any> = {
-    model: model, // Include model in body as per Postman
-    mv: mv || (model === 'sonic' ? 'sonic-v3-5' : undefined), // Default Sonic version, undefined for Studio unless specified
-    custom_mode: customMode, // Use custom_mode field as seen in Postman
-    make_instrumental: instrumental ?? false,
+    // Default Sonic version, undefined for Studio unless specified
+custom_mode: customMode, 
+    
+// Use custom_mode field as seen in Postman
+make_instrumental: instrumental ?? false, 
+    
+
+model: model, 
+    // Include model in body as per Postman
+mv: mv || (model === 'sonic' ? 'sonic-v3-5' : undefined),
     // Add webhook if needed, directly in the body if API expects it flat
     // webhook_url: callbackUrl, // Example if needed flat
   };
@@ -81,8 +87,8 @@ export async function POST(req: Request) {
     if (responseData && responseData.task_id) {
       return NextResponse.json({
         code: 200,
-        message: 'Task created successfully',
         data: { task_id: responseData.task_id },
+        message: 'Task created successfully',
       });
     } else {
       console.error('MusicAPI response missing task_id:', responseData);
@@ -94,7 +100,7 @@ export async function POST(req: Request) {
     try {
       // Error thrown from fetchMusicAPI should be an Error object with a message
       errorMessage = error.message || 'Unknown error during task creation';
-    } catch (e) {
+    } catch {
       errorMessage = 'Unknown error during task creation';
     }
     return NextResponse.json({ code: 500, error: errorMessage }, { status: 500 });

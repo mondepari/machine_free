@@ -10,8 +10,8 @@ import { setNamespace } from '@/utils/storeDebug';
 const n = setNamespace('w');
 
 export interface GlobalWorkspacePaneAction {
-  switchSideBar: (key: SidebarTabKey) => void;
   switchBackToChat: (sessionId?: string) => void;
+  switchSideBar: (key: SidebarTabKey) => void;
   toggleChatSideBar: (visible?: boolean) => void;
   toggleExpandSessionGroup: (id: string, expand: boolean) => void;
   toggleMobilePortal: (visible?: boolean) => void;
@@ -26,15 +26,15 @@ export const globalWorkspaceSlice: StateCreator<
   [],
   GlobalWorkspacePaneAction
 > = (set, get) => ({
+  switchBackToChat: (sessionId) => {
+    get().router?.push(SESSION_CHAT_URL(sessionId || INBOX_SESSION_ID, get().isMobile));
+  },
+
   switchSideBar: (key) => {
     get().updateSystemStatus({ sidebarKey: key }, n('switchSideBar', key));
     if (get().isMobile) {
       get().updateSystemStatus({ mobileShowTopic: false });
     }
-  },
-
-  switchBackToChat: (sessionId) => {
-    get().router?.push(SESSION_CHAT_URL(sessionId || INBOX_SESSION_ID, get().isMobile));
   },
 
   toggleChatSideBar: (newValue) => {

@@ -1,15 +1,18 @@
 import { z } from 'zod';
 
 import { TopicModel } from '@/database/models/topic';
-import { serverDB } from '@/database/server';
+import { getServerDBInstance } from '@/database/server/connection';
 import { authedProcedure, publicProcedure, router } from '@/libs/trpc';
 import { BatchTaskResult } from '@/types/service';
+import { dbMiddleware } from '@/libs/trpc/middleware/db';
+// import { CreateTopicSchema, UpdateTopicSchema } from '@/types/topic'; // Commented out
 
-const topicProcedure = authedProcedure.use(async (opts) => {
-  const { ctx } = opts;
-
+const topicProcedure = dbMiddleware.use(async (opts) => {
   return opts.next({
-    ctx: { topicModel: new TopicModel(serverDB, ctx.userId) },
+    ctx: {
+      ...opts.ctx,
+      topicModel: new TopicModel(opts.ctx.db, opts.ctx.userId),
+    },
   });
 });
 
@@ -70,20 +73,11 @@ export const topicRouter = router({
       return ctx.topicModel.count(input);
     }),
 
-  createTopic: topicProcedure
-    .input(
-      z.object({
-        favorite: z.boolean().optional(),
-        messages: z.array(z.string()).optional(),
-        sessionId: z.string().nullable().optional(),
-        title: z.string(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const data = await ctx.topicModel.create(input);
-
-      return data.id;
-    }),
+  // createTopic: topicProcedure // Commented out
+  //   .input(CreateTopicSchema)
+  //   .mutation(async ({ ctx, input }) => {
+  //     return ctx.topicModel.create(input);
+  //   }),
 
   getAllTopics: topicProcedure.query(async ({ ctx }) => {
     return ctx.topicModel.queryAll();
@@ -93,15 +87,15 @@ export const topicRouter = router({
   getTopics: publicProcedure
     .input(
       z.object({
-        current: z.number().optional(),
-        pageSize: z.number().optional(),
+        favorite: z.boolean().optional(),
+        keywords: z.string().optional(),
         sessionId: z.string().nullable().optional(),
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .query(async ({ ctx, input }) => {
       if (!ctx.userId) return [];
 
-      const topicModel = new TopicModel(serverDB, ctx.userId);
+      const topicModel = new TopicModel(await getServerDBInstance(), ctx.userId);
 
       return topicModel.query(input);
     }),
@@ -130,28 +124,16 @@ export const topicRouter = router({
       return ctx.topicModel.queryByKeyword(input.keywords, input.sessionId);
     }),
 
-  updateTopic: topicProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        value: z.object({
-          favorite: z.boolean().optional(),
-          historySummary: z.string().optional(),
-          messages: z.array(z.string()).optional(),
-          metadata: z
-            .object({
-              model: z.string().optional(),
-              provider: z.string().optional(),
-            })
-            .optional(),
-          sessionId: z.string().optional(),
-          title: z.string().optional(),
-        }),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      return ctx.topicModel.update(input.id, input.value);
-    }),
+  // updateTopic: topicProcedure // Commented out
+  //   .input(
+  //     z.object({
+  //       id: z.string(),
+  //       value: UpdateTopicSchema,
+  //     }),
+  //   )
+  //   .mutation(async ({ input, ctx }) => {
+  //     return ctx.topicModel.update(input.id, input.value);
+  //   }),
 });
 
 export type TopicRouter = typeof topicRouter;
